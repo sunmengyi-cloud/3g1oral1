@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="zh-SG">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水资源守护者：中三华文口试通关大冒险</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chinese-to-pinyin engine, pinned for reliable learner support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pinyin-pro/3.29.3/index.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(0, 102, 204, 0.12);
+        }
+        .ruby-text {
+            ruby-position: over;
+        }
+        ruby rt {
+            font-size: 0.65rem;
+            color: #0284c7;
+            font-weight: normal;
+        }
+        .pinyin-line { display:block; margin-top:0.2rem; color:#0284c7; font-size:0.72rem; font-weight:600; line-height:1.25; }
+        .auto-pinyin { display:inline-block; }
+        .water-wave {
+            animation: wave 3s ease-in-out infinite alternate;
+        }
+        @keyframes wave {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(-1deg); }
+        }
+        .pulse-subtle {
+            animation: pulse-sub 2s infinite;
+        }
+        @keyframes pulse-sub {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(1.02); }
+        }
+        .script-masked .py-text {
+            filter: blur(6px);
+            user-select: none;
+            transition: filter 0.2s ease;
+            cursor: pointer;
+        }
+        .script-masked .py-text:hover {
+            filter: blur(0px);
+        }
+        #peelCelebrationLayer { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
+        .peel-confetti { position: absolute; top: -12vh; width: 10px; height: 16px; border-radius: 3px; animation: peel-confetti-fall 1.65s ease-in forwards; }
+        @keyframes peel-confetti-fall {
+            0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate3d(var(--drift), 112vh, 0) rotate(760deg); opacity: 0; }
+        }
+        .mock-answer-hidden .mock-answer-copy { filter: blur(7px); user-select: none; }
+        .mock-answer-hidden .mock-answer-copy:hover { filter: blur(0); }
+        .mock-feedback-card { border-left: 5px solid #94a3b8; }
+        .mock-feedback-card.good { border-left-color: #10b981; background: #ecfdf5; }
+        .mock-feedback-card.partial { border-left-color: #f59e0b; background: #fffbeb; }
+        .mock-feedback-card.missing { border-left-color: #94a3b8; background: #f8fafc; }
+        .mock-check-pill.on { background: #d1fae5; border-color: #34d399; color: #065f46; }
+        .mock-check-pill.off { background: #f8fafc; border-color: #cbd5e1; color: #64748b; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between min-h-screen">
+
+    <!-- Top Navigation & Scoreboard -->
+    <header class="sticky top-0 z-50 glass-card px-4 py-3 mb-4 rounded-b-2xl shadow-sm">
+        <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold text-xl shadow-md water-wave">
+                    <i class="fa-solid font-sharp fa-droplet"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl text-sky-900 leading-tight">水资源守护者</h1>
+                    <p class="text-xs text-sky-600 font-medium">中三 G1 华文口试特训营</p>
+                </div>
+            </div>
+
+            <!-- Global Controls & Score -->
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <!-- Student Name Badge / Re-enter button -->
+                <button onclick="openNameModal()" class="px-2.5 py-1.5 rounded-xl bg-white/80 hover:bg-white text-sky-900 text-xs font-bold border border-sky-300 flex items-center gap-1">
+                    <i class="fa-solid fa-user text-sky-600"></i>
+                    <span id="currentStudentNameDisplay">点击设置名字</span>
+                </button>
+
+                <!-- Supabase Config Button -->
+                <button onclick="openSupabaseModal()" class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300" title="设置 Supabase 数据库">
+                    <i class="fa-solid fa-database text-sky-600"></i>
+                </button>
+
+                <!-- Pinyin Toggle -->
+                <button id="pinyinToggleBtn" onclick="togglePinyin()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs md:text-sm font-semibold transition-all flex items-center gap-1 border border-sky-300">
+                    <i class="fa-solid fa-language text-sky-600"></i>
+                    <span id="pinyinBtnText">显示拼音</span>
+                </button>
+
+                <!-- Score Badge -->
+                <div class="flex items-center space-x-1 bg-amber-100 border border-amber-300 text-amber-800 px-3 py-1.5 rounded-xl text-xs md:text-sm font-bold">
+                    <i class="fa-solid fa-star text-amber-500"></i>
+                    <span>得分: <span id="scoreDisplay" class="text-base text-amber-700">0</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 w-full flex-grow mb-8">
+        
+        <!-- Stage Tabs -->
+        <div class="grid grid-cols-4 gap-1 md:gap-2 mb-6 p-1 bg-sky-200/60 backdrop-blur rounded-2xl">
+            <button onclick="switchStage(1)" id="tab-1" class="tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center bg-white text-sky-800 shadow-sm">
+                <span class="block text-base md:text-lg mb-0.5"><i class="fa-solid fa-spell-check"></i></span>
+                关卡一<span class="hidden md:inline">: 字词特训营</span>
+            </button>
+            <button onclick="switchStage(2)" id="tab-2" class="tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center text-sky-700 hover:bg-white/50">
+                <span class="block text-base md:text-lg mb-0.5"><i class="fa-solid fa-diagram-project"></i></span>
+                关卡二<span class="hidden md:inline">: 词语拼句</span>
+            </button>
+            <button onclick="switchStage(3)" id="tab-3" class="tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center text-sky-700 hover:bg-white/50">
+                <span class="block text-base md:text-lg mb-0.5"><i class="fa-solid fa-layer-group"></i></span>
+                关卡三<span class="hidden md:inline">: 段落建筑师</span>
+            </button>
+            <button onclick="switchStage(4)" id="tab-4" class="tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center text-sky-700 hover:bg-white/50">
+                <span class="block text-base md:text-lg mb-0.5"><i class="fa-solid fa-microphone"></i></span>
+                关卡四<span class="hidden md:inline">: 模拟实战</span>
+            </button>
+        </div>
+
+        <!-- STAGE 1 CONTAINER: 字词特训营 -->
+        <section id="stage-1" class="stage-content space-y-4">
+            <!-- Mode Switcher for Stage 1 -->
+            <div class="glass-card p-4 md:p-6 rounded-2xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100 pb-3 mb-4">
+                    <div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold mb-1">关卡一：认字扫雷</span>
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800">核心字词特训营</h2>
+                        <p class="text-xs text-slate-500 mt-1">扫清核心高频词汇障碍，学会发音与字义！</p>
+                    </div>
+                    <!-- Sub-tabs -->
+                    <div class="flex space-x-2 bg-sky-100 p-1 rounded-xl">
+                        <button onclick="switchVocabSubMode('listen')" id="vsub-listen" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-800 shadow-sm transition-all">
+                            <i class="fa-solid fa-headphones mr-1"></i> 听音辨词
+                        </button>
+                        <button onclick="switchVocabSubMode('match')" id="vsub-match" class="px-3 py-1.5 rounded-lg text-xs font-bold text-sky-700 hover:bg-white/50 transition-all">
+                            <i class="fa-solid fa-cubes mr-1"></i> 字词对对碰
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Mode A: 听音辨词 -->
+                <div id="vsub-listen-sec" class="space-y-4">
+                    <div class="bg-sky-50/80 p-4 rounded-xl border border-sky-200 text-center space-y-3">
+                        <span class="text-xs font-bold text-sky-700 uppercase tracking-wider block">听音辨词小游戏</span>
+                        <div class="flex items-center justify-center space-x-3">
+                            <button id="listenPlayAudioBtn" onclick="playCurrentListenTargetAudio()" class="w-16 h-16 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-2xl shadow-lg flex items-center justify-center transition-all pulse-subtle">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-600">点击上方喇叭听发音，选择正确的字词卡片：</p>
+                        <p id="listenTargetPinyin" class="text-sm font-semibold text-sky-800 hidden font-mono"></p>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div id="listenOptionsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- 静态首题：即使浏览器未完成初始化，学生也能马上看见题卡。 -->
+                        <button onclick="checkListenAnswer('v1', 'v1', this)" class="bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1"><i class="fa-solid fa-faucet-drip text-sky-500 text-lg mb-1"></i><span class="py-text" data-py="làng fèi">浪费</span><span class="text-[10px] text-slate-400 font-normal">waste</span></button>
+                        <button onclick="checkListenAnswer('v2', 'v1', this)" class="bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1"><i class="fa-solid fa-hand-holding-droplet text-sky-500 text-lg mb-1"></i><span class="py-text" data-py="jié shěng">节省</span><span class="text-[10px] text-slate-400 font-normal">save / conserve</span></button>
+                        <button onclick="checkListenAnswer('v3', 'v1', this)" class="bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1"><i class="fa-solid fa-faucet text-sky-500 text-lg mb-1"></i><span class="py-text" data-py="shuǐ lóng tóu">水龙头</span><span class="text-[10px] text-slate-400 font-normal">tap / faucet</span></button>
+                        <button onclick="checkListenAnswer('v4', 'v1', this)" class="bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1"><i class="fa-solid fa-circle-xmark text-sky-500 text-lg mb-1"></i><span class="py-text" data-py="guān jǐn">关紧</span><span class="text-[10px] text-slate-400 font-normal">turn off tightly</span></button>
+                    </div>
+
+                    <!-- Vocab Glossary Reference -->
+                    <div class="mt-6 pt-4 border-t border-slate-200">
+                        <h3 class="text-xs font-bold text-slate-500 mb-2 uppercase flex items-center gap-1">
+                            <i class="fa-solid fa-book-open text-sky-600"></i> 口试高频词汇卡（点击可听发音）
+                        </h3>
+                        <div id="vocabCardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            <button onclick="speakText('浪费')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="làng fèi">浪费</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('节省')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="jié shěng">节省</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('水龙头')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="shuǐ lóng tóu">水龙头</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('关紧')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="guān jǐn">关紧</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('习惯')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="xí guàn">习惯</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('培养')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="péi yǎng">培养</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('责任感')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="zé rèn gǎn">责任感</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                            <button onclick="speakText('珍惜')" class="bg-white p-2.5 rounded-xl border border-sky-100 shadow-sm flex items-center justify-between text-left"><span class="font-bold text-xs py-text" data-py="zhēn xī">珍惜</span><i class="fa-solid fa-volume-high text-xs text-sky-400"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Mode B: 字词对对碰 -->
+                <div id="vsub-match-sec" class="hidden space-y-4">
+                    <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-200 text-center">
+                        <p class="text-xs text-indigo-900 font-bold">翻开卡片，把【汉字/拼音】与对应的【英文/含义】进行配对！</p>
+                    </div>
+
+                    <div id="matchGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                        <!-- Dynamic Match Cards in JS -->
+                    </div>
+                    <div class="text-center">
+                        <button onclick="resetMatchGame()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition-all shadow-sm">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> 重新开始对对碰
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 2 CONTAINER: 词语拼句 -->
+        <section id="stage-2" class="stage-content hidden space-y-4">
+            <div class="glass-card p-4 md:p-6 rounded-2xl">
+                <div class="flex items-start justify-between gap-2 border-b border-sky-100 pb-3 mb-4">
+                    <div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-1">关卡二：词语拼句</span>
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800">拖动词语，拼出完整句子</h2>
+                        <p class="text-xs text-slate-500 mt-1">把打乱的词语排好。你可以拖动词语，也可以直接点击词语放进句子里。</p>
+                    </div>
+                </div>
+
+                <!-- Question Selector for Stage 2 -->
+                <div class="flex space-x-2 mb-4 overflow-x-auto pb-1">
+                    <button onclick="loadSentenceBuildQuestion(1)" id="sentence-qbtn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm whitespace-nowrap">题目一：浪费水</button>
+                    <button onclick="loadSentenceBuildQuestion(2)" id="sentence-qbtn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 whitespace-nowrap">题目二：省水方法</button>
+                    <button onclick="loadSentenceBuildQuestion(3)" id="sentence-qbtn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 whitespace-nowrap">题目三：从小培养</button>
+                </div>
+
+                <!-- Word-to-sentence Interactive Area -->
+                <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 space-y-4">
+                    <div id="sentenceBuildContainer" class="space-y-4">
+                        <!-- Dynamic Chain Steps in JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 3 CONTAINER: 段落建筑师 -->
+        <section id="stage-3" class="stage-content hidden space-y-4">
+            <div class="glass-card p-4 md:p-6 rounded-2xl">
+                <div class="flex items-start justify-between gap-2 border-b border-sky-100 pb-3 mb-4">
+                    <div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold mb-1">关卡三：段落建筑师</span>
+                        <h2 class="text-lg md:text-xl font-bold text-slate-800">P＋ELA＋EVI 段落建筑师</h2>
+                        <p class="text-xs text-slate-500 mt-1">先找重点，再进一步说明，最后举出具体例子。这一关不用录音。</p>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2 mb-4 overflow-x-auto pb-1">
+                    <button onclick="loadParagraphBuildQuestion(1)" id="paragraph-qbtn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm whitespace-nowrap">题目一：浪费水</button>
+                    <button onclick="loadParagraphBuildQuestion(2)" id="paragraph-qbtn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 whitespace-nowrap">题目二：省水方法</button>
+                    <button onclick="loadParagraphBuildQuestion(3)" id="paragraph-qbtn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 whitespace-nowrap">题目三：从小培养</button>
+                </div>
+
+                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-200">
+                <div id="paragraphBuildContainer" class="space-y-4">
+                    <!-- Dynamic rendering in JS -->
+                </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 4 CONTAINER -->
+        <section id="stage-4" class="stage-content hidden space-y-4">
+            <div class="glass-card p-4 md:p-6 rounded-2xl">
+                <div class="text-center border-b border-sky-100 pb-4 mb-4">
+                    <span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-2"><i class="fa-solid fa-award mr-1"></i>关卡四：篇</span>
+                    <h2 class="text-xl font-bold text-slate-800">口试模拟实战</h2>
+                    <p class="text-xs text-slate-500 mt-1">先自己说，再录音、回听和检查内容。没有标准分数，只有下一次可以做得更好的地方。</p>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div class="flex space-x-2">
+                        <button onclick="loadMockQuestion(1)" id="mock-btn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm">题目 1</button>
+                        <button onclick="loadMockQuestion(2)" id="mock-btn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">题目 2</button>
+                        <button onclick="loadMockQuestion(3)" id="mock-btn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">题目 3</button>
+                    </div>
+                    <button id="maskToggleBtn" onclick="toggleScriptMask()" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-sm"><i class="fa-solid fa-eye-slash"></i> 隐藏参考答案</button>
+                </div>
+                <div class="bg-sky-50/60 p-4 md:p-5 rounded-2xl border border-sky-200">
+                    <h3 id="mock-q-title" class="font-bold text-base md:text-lg text-sky-900 mb-3">--</h3>
+                    <div class="flex flex-wrap gap-2 bg-white p-3 rounded-xl border border-sky-100 mb-3 shadow-sm">
+                        <button onclick="readCurrentMock()" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs"><i class="fa-solid fa-volume-high mr-1"></i>听参考答案</button>
+                        <button onclick="stopAudio()" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs"><i class="fa-solid fa-stop mr-1"></i>停止</button>
+                        <button id="recordBtn" onclick="toggleRecording()" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200"><i class="fa-solid fa-microphone text-rose-500 mr-1"></i><span id="recordBtnText">开始录音测试</span></button>
+                        <button id="playRecordBtn" onclick="playUserRecording()" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs hidden border border-indigo-200"><i class="fa-solid fa-circle-play mr-1"></i>回听我的录音</button>
+                        <span class="ml-auto text-xs text-slate-500 self-center">录音：<b id="mockRecordTime" class="font-mono text-sky-700">00:00</b></span>
+                    </div>
+                    <p id="recordStatus" class="hidden text-center text-xs font-bold py-1 mb-2"></p>
+                    <div id="mock-script-container" class="mock-answer-copy space-y-3 bg-white p-4 rounded-xl border border-sky-100 text-sm leading-relaxed text-slate-800 max-h-96 overflow-y-auto"></div>
+                    <div class="mt-5 bg-white p-4 rounded-xl border border-sky-100">
+                        <label for="mockTranscript" class="block font-bold text-sky-900 text-sm mb-1"><i class="fa-solid fa-closed-captioning mr-1"></i>我的逐字稿</label>
+                        <p class="text-xs text-slate-500 mb-2">录音时系统会尽量转写。你也可以自己改字或输入内容；检查会以这里的文字为准。</p>
+                        <textarea id="mockTranscript" oninput="resetMockFeedback()" rows="7" class="w-full p-3 rounded-xl border border-slate-300 focus:border-sky-500 focus:outline-none text-sm leading-relaxed" placeholder="请先按“开始录音测试”。如果没有自动出现文字，也可以自己输入刚才说的话。"></textarea>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button onclick="checkMockTranscript()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm"><i class="fa-solid fa-magnifying-glass mr-1"></i>检查我的内容</button>
+                            <button onclick="clearMockTranscript()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"><i class="fa-solid fa-rotate-left mr-1"></i>清除，再挑战一次</button>
+                        </div>
+                    </div>
+                    <div id="mockFeedback" class="hidden mt-5"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-sky-200/50 bg-white/40">
+        <p>💡 专为中三 G1 华文口试备考设计 | 珍惜水资源 · 表达有条理</p>
+    </footer>
+
+    <!-- Student Name Modal -->
+    <div id="nameModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-sky-100 space-y-4">
+            <div class="w-14 h-14 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-slate-800">欢迎来到华文口试大冒险</h3>
+                <p class="text-xs text-slate-500 mt-1">请输入你的名字或班级编号开始游戏：</p>
+            </div>
+            <input type="text" id="studentNameInput" placeholder="例如：张小明 (3A)" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-sky-500 focus:outline-none text-sm text-center font-bold" />
+            <button onclick="saveStudentName()" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">
+                进入大冒险 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Supabase Config Modal (for Teacher) -->
+    <div id="supabaseModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-sky-100 space-y-4 text-left">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-database text-sky-600"></i> Supabase 后台绑定
+                </h3>
+                <button onclick="closeSupabaseModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">粘贴你 Supabase 项目中的 API 凭证，学生的做错记录将自动实时同步至云端。</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Project URL:</label>
+                    <input type="text" id="sbUrlInput" placeholder="https://xyz.supabase.co" class="w-full px-3 py-2 rounded-lg border text-xs font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Anon / Public API Key:</label>
+                    <input type="text" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full px-3 py-2 rounded-lg border text-xs font-mono" />
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="saveSupabaseConfig()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
+                    保存配置
+                </button>
+                <button onclick="closeSupabaseModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+                    取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result / Feedback Modal -->
+    <div id="feedbackModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl transform transition-all scale-95 border border-sky-100" id="modalContent">
+            <div id="modalIcon" class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center mx-auto text-3xl mb-3">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-bold text-slate-800 mb-2">太棒了！答对了！</h3>
+            <p id="modalMsg" class="text-sm text-slate-600 mb-6">你掌握了完整的“点-例-做”答题技巧！</p>
+            <button onclick="closeModal()" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">
+                继续挑战
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            score: 0,
+            pinyinEnabled: false,
+            currentStage: 1,
+            completedTasks: { 1: false, 2: false, 3: false },
+            timerInterval: null,
+            timerSeconds: 0,
+            isTimerRunning: false,
+            currentMockIndex: 1,
+            // Student & Supabase state
+            studentName: '',
+            supabaseClient: null,
+            // Stage 1 Vocab state
+            listenCurrentIndex: 0,
+            vocabSubMode: 'listen',
+            matchCards: [],
+            flippedCards: [],
+            matchedPairs: 0,
+            // Stage 2 Word-to-sentence state
+            sentenceBuild: {
+                currentQ: 1,
+                sentenceIndex: 0,
+                slots: [],
+                tileOrder: [],
+                attempts: 0,
+                supportMode: false,
+                hintText: '',
+                status: 'idle',
+                typingUnlocked: false,
+                typingMode: false,
+                typingPassed: false,
+                completed: { 1: [], 2: [], 3: [] }
+            },
+            // Stage 3 Paragraph builder state
+            paragraphBuild: {
+                currentQ: 1,
+                paragraphIndex: 0,
+                contentSlots: [null, null, null],
+                contentOrder: [],
+                contentCorrect: false,
+                connectorSelections: [null, null],
+                attempts: 0,
+                supportMode: false,
+                hintText: '',
+                status: 'idle',
+                completed: { 1: [], 2: [], 3: [] }
+            },
+            // Stage 4 Mask & Recording state
+            isMasked: false,
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            userAudioElement: null,
+            recordingMimeType: ''
+        };
+
+        // Web Audio API 本地音效合成器 (完全离线，无需加载外部音频文件)
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSoundEffect(type) {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    // 答对音效：双音阶欢快提示音 (G5 -> C6)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(783.99, now); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.12); // C6
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    // 答错音效：低沉温和提示音 (E3 -> C3)
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(164.81, now); // E3
+                    osc.frequency.setValueAtTime(130.81, now + 0.15); // C3
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'fanfare') {
+                    // 通关狂欢音效：三音符顺阶 (C5 -> E5 -> G5)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch (e) {
+                console.log("Audio synthesis error:", e);
+            }
+        }
+
+        let bestChineseVoice = null;
+
+        function loadBestChineseVoice() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            // 优先选择普通话/国语/新加坡华语发音人
+            bestChineseVoice = voices.find(v => v.lang === 'zh-CN' || v.lang === 'zh-SG' || v.lang === 'zh-TW' || v.name.includes('Chinese') || v.name.includes('Mandarin') || v.name.includes('Xiaoxiao') || v.name.includes('Huihui')) || null;
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadBestChineseVoice;
+            loadBestChineseVoice();
+        }
+
+        // 升级版 speakText：自动切分长文本，解决 Web Speech API 朗读长段落超时中断问题
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) {
+                showModal("提示", "您的浏览器暂不支持原生语音朗读，请看文字进行朗读练习！", false);
+                return;
+            }
+
+            window.speechSynthesis.cancel(); // 停止先前的朗读
+            getAudioContext(); // 激活音效上下文
+
+            if (!text || text.trim() === '') return;
+
+            // 按照标点符号切分成小句，防止 Chrome 朗读超过 15 秒中断
+            const sentences = text.split(/([。！？；;\n])/).filter(Boolean);
+            let combinedChunks = [];
+            let currentChunk = "";
+
+            for (let i = 0; i < sentences.length; i++) {
+                currentChunk += sentences[i];
+                if (sentences[i].match(/[。！？；;\n]/) || currentChunk.length > 25) {
+                    combinedChunks.push(currentChunk);
+                    currentChunk = "";
+                }
+            }
+            if (currentChunk) combinedChunks.push(currentChunk);
+
+            if (!bestChineseVoice) loadBestChineseVoice();
+
+            combinedChunks.forEach((chunkText, idx) => {
+                const utterance = new SpeechSynthesisUtterance(chunkText);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.9; // 稍微放慢速度，利于口试听辨
+                if (bestChineseVoice) {
+                    utterance.voice = bestChineseVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
+        function stopAudio() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function initSupabase() {
+            const defaultUrl = 'https://pagamogrzvsbavliewyf.supabase.co';
+            const defaultKey = 'sb_publishable_E5QWgPbpPZmFmfJSa02_rw_gU8qANpi';
+            const url = localStorage.getItem('SUPABASE_URL') || defaultUrl;
+            const key = localStorage.getItem('SUPABASE_ANON_KEY') || defaultKey;
+            if (url && key && window.supabase) {
+                state.supabaseClient = window.supabase.createClient(url, key);
+            }
+        }
+
+        async function logResponseToSupabase(stageName, questionTitle, selectedAnswer, isCorrect) {
+            if (!state.supabaseClient) return; // If not configured, silent bypass
+            const name = state.studentName || '未命名学生';
+            
+            try {
+                await state.supabaseClient.from('Eco_MCQ').insert([
+                    {
+                        student_name: name,
+                        stage_name: stageName,
+                        question_title: questionTitle,
+                        selected_answer: selectedAnswer,
+                        is_correct: isCorrect
+                    }
+                ]);
+            } catch (err) {
+                console.error("Failed to log to Supabase:", err);
+            }
+        }
+
+        function openNameModal() {
+            const modal = document.getElementById('nameModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function saveStudentName() {
+            const input = document.getElementById('studentNameInput');
+            const name = input ? input.value.trim() : '';
+            if (!name) {
+                alert('请输入你的名字或学号！');
+                return;
+            }
+            state.studentName = name;
+            localStorage.setItem('STUDENT_NAME', name);
+            document.getElementById('currentStudentNameDisplay').innerText = name;
+            document.getElementById('nameModal').classList.add('hidden');
+        }
+
+        function openSupabaseModal() {
+            const defaultUrl = 'https://pagamogrzvsbavliewyf.supabase.co';
+            const defaultKey = 'sb_publishable_E5QWgPbpPZmFmfJSa02_rw_gU8qANpi';
+            document.getElementById('sbUrlInput').value = localStorage.getItem('SUPABASE_URL') || defaultUrl;
+            document.getElementById('sbKeyInput').value = localStorage.getItem('SUPABASE_ANON_KEY') || defaultKey;
+            document.getElementById('supabaseModal').classList.remove('hidden');
+        }
+
+        function closeSupabaseModal() {
+            document.getElementById('supabaseModal').classList.add('hidden');
+        }
+
+        function saveSupabaseConfig() {
+            const url = document.getElementById('sbUrlInput').value.trim();
+            const key = document.getElementById('sbKeyInput').value.trim();
+            localStorage.setItem('SUPABASE_URL', url);
+            localStorage.setItem('SUPABASE_ANON_KEY', key);
+            initSupabase();
+            closeSupabaseModal();
+            alert('Supabase 配置成功！数据现已开始同步。');
+        }
+
+        // Render Stage 1: Vocab Bootcamp
+        function renderVocabBootcamp() {
+            renderVocabGlossaryCards();
+            loadListenQuestion();
+        }
+
+        function renderVocabGlossaryCards() {
+            const grid = document.getElementById('vocabCardGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            vocabList.forEach(v => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-2.5 rounded-xl border border-sky-100 hover:border-sky-300 shadow-sm flex items-center justify-between cursor-pointer transition-all";
+                card.onclick = () => speakText(v.word);
+                card.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs">
+                            <i class="fa-solid ${v.icon}"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-xs text-slate-800 block leading-tight py-text" data-py="${v.pinyin}">${v.word}</span>
+                            <span class="text-[10px] text-slate-400 block">${v.en}</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-volume-high text-xs text-sky-400"></i>
+                `;
+                grid.appendChild(card);
+            });
+            applyPinyinState();
+        }
+
+        function loadListenQuestion() {
+            const target = vocabList[state.listenCurrentIndex];
+            const pinyinEl = document.getElementById('listenTargetPinyin');
+            if (pinyinEl) {
+                pinyinEl.innerText = target.pinyin;
+                if (state.pinyinEnabled) pinyinEl.classList.remove('hidden');
+                else pinyinEl.classList.add('hidden');
+            }
+
+            // Play audio automatically after delay
+            setTimeout(() => {
+                speakText(target.word);
+            }, 300);
+
+            // Generate options (target + 3 random incorrect)
+            let options = [target];
+            while (options.length < 4) {
+                const rand = vocabList[Math.floor(Math.random() * vocabList.length)];
+                if (!options.find(o => o.id === rand.id)) {
+                    options.push(rand);
+                }
+            }
+            // Shuffle
+            options.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('listenOptionsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1";
+                btn.onclick = () => checkListenAnswer(opt.id, target.id, btn);
+                btn.innerHTML = `
+                    <i class="fa-solid ${opt.icon} text-sky-500 text-lg mb-1"></i>
+                    <span class="py-text" data-py="${opt.pinyin}">${opt.word}</span>
+                    <span class="text-[10px] text-slate-400 font-normal">${opt.en}</span>
+                `;
+                grid.appendChild(btn);
+            });
+            applyPinyinState();
+        }
+
+        function playCurrentListenTargetAudio() {
+            const target = vocabList[state.listenCurrentIndex];
+            speakText(target.word);
+        }
+
+        function checkListenAnswer(selectedId, targetId, btnEl) {
+            if (selectedId === targetId) {
+                btnEl.className = "bg-emerald-100 border-2 border-emerald-500 p-3.5 rounded-xl font-bold text-sm text-emerald-900 shadow-md flex flex-col items-center justify-center space-y-1";
+                addScore(10);
+                speakText("答对了！" + vocabList[state.listenCurrentIndex].word);
+                
+                setTimeout(() => {
+                    state.listenCurrentIndex = (state.listenCurrentIndex + 1) % vocabList.length;
+                    loadListenQuestion();
+                }, 1200);
+            } else {
+                btnEl.className = "bg-rose-50 border-2 border-rose-300 p-3.5 rounded-xl font-bold text-sm text-rose-700 flex flex-col items-center justify-center space-y-1";
+                showModal("再试试看", "选错了哦！点击喇叭再听一次读音！", false);
+            }
+        }
+
+        // Sub-mode B: Match Game
+        function initMatchGame() {
+            state.flippedCards = [];
+            state.matchedPairs = 0;
+
+            // Pick 6 random vocab items
+            const selected = [...vocabList].sort(() => Math.random() - 0.5).slice(0, 6);
+            
+            let cards = [];
+            selected.forEach(v => {
+                // Card A: Chinese Word
+                cards.push({ id: v.id, type: 'word', content: v.word, pinyin: v.pinyin, icon: v.icon });
+                // Card B: English & Icon
+                cards.push({ id: v.id, type: 'en', content: v.en, pinyin: '', icon: v.icon });
+            });
+
+            cards.sort(() => Math.random() - 0.5);
+            state.matchCards = cards;
+
+            const grid = document.getElementById('matchGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            cards.forEach((c, idx) => {
+                const cardEl = document.createElement('div');
+                cardEl.id = `mcard-${idx}`;
+                cardEl.className = "h-20 bg-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-bold text-xs p-2 text-center cursor-pointer transition-all transform hover:scale-105";
+                cardEl.onclick = () => flipMatchCard(idx);
+                cardEl.innerHTML = `<i class="fa-solid fa-question text-xl text-indigo-300"></i>`;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function flipMatchCard(idx) {
+            if (state.flippedCards.length >= 2) return;
+            const cardData = state.matchCards[idx];
+            const cardEl = document.getElementById(`mcard-${idx}`);
+
+            if (cardEl.classList.contains('bg-white')) return; // Already flipped/matched
+
+            // Show card content
+            cardEl.className = "h-20 bg-white text-indigo-900 border-2 border-indigo-400 rounded-xl shadow-md flex flex-col items-center justify-center font-bold text-xs p-2 text-center transition-all";
+            cardEl.innerHTML = `
+                <i class="fa-solid ${cardData.icon} text-indigo-500 mb-1"></i>
+                <span class="py-text" data-py="${cardData.pinyin}">${cardData.content}</span>
+            `;
+            applyPinyinState();
+
+            if (cardData.type === 'word') speakText(cardData.content);
+
+            state.flippedCards.push({ idx, data: cardData });
+
+            if (state.flippedCards.length === 2) {
+                const [c1, c2] = state.flippedCards;
+                if (c1.data.id === c2.data.id && c1.idx !== c2.idx) {
+                    // Match found!
+                    addScore(15);
+                    state.matchedPairs++;
+                    state.flippedCards = [];
+
+                    document.getElementById(`mcard-${c1.idx}`).classList.add('border-emerald-500', 'bg-emerald-50');
+                    document.getElementById(`mcard-${c2.idx}`).classList.add('border-emerald-500', 'bg-emerald-50');
+
+                    if (state.matchedPairs === 6) {
+                        setTimeout(() => {
+                            showModal("对对碰全通关！", "太厉害了！你成功记住了所有核心字词义与发音！");
+                        }, 500);
+                    }
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        const el1 = document.getElementById(`mcard-${c1.idx}`);
+                        const el2 = document.getElementById(`mcard-${c2.idx}`);
+                        if (el1) {
+                            el1.className = "h-20 bg-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-bold text-xs p-2 text-center cursor-pointer transition-all";
+                            el1.innerHTML = `<i class="fa-solid fa-question text-xl text-indigo-300"></i>`;
+                        }
+                        if (el2) {
+                            el2.className = "h-20 bg-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-bold text-xs p-2 text-center cursor-pointer transition-all";
+                            el2.innerHTML = `<i class="fa-solid fa-question text-xl text-indigo-300"></i>`;
+                        }
+                        state.flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function resetMatchGame() {
+            initMatchGame();
+        }
+
+        function renderSentenceChain() {
+            loadSentenceBuildQuestion(1);
+        }
+
+        function getSentenceBuildSentence() {
+            const build = state.sentenceBuild;
+            return sentenceBuildData[build.currentQ].sentences[build.sentenceIndex];
+        }
+
+        function resetSentenceBuildRound(qNum, sentenceIndex) {
+            const sentence = sentenceBuildData[qNum].sentences[sentenceIndex];
+            state.sentenceBuild.currentQ = qNum;
+            state.sentenceBuild.sentenceIndex = sentenceIndex;
+            state.sentenceBuild.slots = Array(sentence.tiles.length).fill(null);
+            state.sentenceBuild.tileOrder = sentence.tiles.map((_, index) => index).sort(() => Math.random() - 0.5);
+            state.sentenceBuild.attempts = 0;
+            state.sentenceBuild.supportMode = false;
+            state.sentenceBuild.hintText = '';
+            state.sentenceBuild.status = 'idle';
+            state.sentenceBuild.typingUnlocked = false;
+            state.sentenceBuild.typingMode = false;
+            state.sentenceBuild.typingPassed = false;
+        }
+
+        function loadSentenceBuildQuestion(qNum) {
+            const completed = state.sentenceBuild.completed[qNum] || [];
+            const firstIncomplete = sentenceBuildData[qNum].sentences.findIndex((_, index) => !completed.includes(index));
+            resetSentenceBuildRound(qNum, firstIncomplete === -1 ? 0 : firstIncomplete);
+            renderSentenceBuild();
+        }
+
+        function renderSentenceBuild() {
+            const container = document.getElementById('sentenceBuildContainer');
+            if (!container) return;
+
+            const build = state.sentenceBuild;
+            const question = sentenceBuildData[build.currentQ];
+            const sentence = getSentenceBuildSentence();
+            const availableTiles = build.tileOrder.filter(index => !build.slots.includes(index));
+            const completedCount = build.completed[build.currentQ].length;
+            const isCorrect = build.status === 'correct';
+            const statusClass = isCorrect ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : build.status === 'incorrect' ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-sky-50 text-sky-800 border-sky-100';
+            const statusText = isCorrect
+                ? `✅ 拼对了！${build.attempts === 0 ? '你一次拼对，已解锁打字挑战。' : '点击朗读，跟着读一次吧。'}`
+                : build.status === 'incorrect'
+                    ? (build.supportMode ? '再试一次。第一块词语已帮你放好。' : '顺序还不对，再看看谁先做这个动作。')
+                    : '先把下方词语拖进句子格；点击已放入的词语，可以取回来重排。';
+
+            container.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <p class="text-xs font-bold text-emerald-900">${question.title}</p>
+                        <p class="text-xs text-slate-500 mt-0.5">第 ${build.sentenceIndex + 1} 句／共 ${question.sentences.length} 句 · 已完成 ${completedCount}/${question.sentences.length}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-white border border-emerald-200 text-emerald-800 text-xs font-bold">${sentence.label}</span>
+                </div>
+
+                <div class="bg-white border border-emerald-100 rounded-xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-xs font-bold text-slate-700">把词语放进正确的位置：</p>
+                        <button onclick="speakText('${sentence.text}')" class="text-xs font-bold text-emerald-700 hover:text-emerald-900 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-100"><i class="fa-solid fa-volume-high mr-1"></i>听句子</button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="sentenceBuildSlots">
+                        ${sentence.tiles.map((_, slotIndex) => {
+                            const tileIndex = build.slots[slotIndex];
+                            const isFixed = build.supportMode && slotIndex === 0 && tileIndex === 0;
+                            const content = tileIndex === null
+                                ? '<span class="text-slate-400">拖到这里</span>'
+                                : `<span class="py-text" data-py="${sentence.pinyinTiles?.[tileIndex] || ''}">${sentence.tiles[tileIndex]}</span>`;
+                            const classes = tileIndex === null
+                                ? 'border-dashed border-slate-300 bg-slate-50 text-slate-400'
+                                : isFixed
+                                    ? 'border-amber-300 bg-amber-50 text-amber-900'
+                                    : 'border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 cursor-pointer';
+                            return `<div ondragover="allowSentenceBuildDrop(event)" ondrop="dropSentenceBuildTile(event, ${slotIndex})" onclick="removeSentenceBuildTile(${slotIndex})" class="min-h-12 px-2 py-2 rounded-lg border text-center text-sm font-bold flex items-center justify-center transition-all ${classes}" title="${tileIndex === null ? '把词语拖到这里' : isFixed ? '这是提示词语' : '点击取回这个词语'}">${content}</div>`;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="text-xs font-bold text-slate-700">词语积木：</p>
+                    <div class="flex flex-wrap gap-2 min-h-11">
+                        ${availableTiles.length ? availableTiles.map(tileIndex => `<button draggable="true" ondragstart="startSentenceBuildDrag(event, ${tileIndex})" onclick="placeSentenceBuildTile(${tileIndex})" class="px-3 py-2 rounded-xl bg-white border-2 border-sky-200 text-sky-900 hover:border-sky-500 hover:bg-sky-50 text-sm font-bold shadow-sm cursor-grab active:cursor-grabbing transition-all"><span class="py-text" data-py="${sentence.pinyinTiles?.[tileIndex] || ''}">${sentence.tiles[tileIndex]}</span></button>`).join('') : '<span class="text-xs text-slate-400 self-center">所有词语都已放入句子格。</span>'}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button onclick="checkSentenceBuild()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all"><i class="fa-solid fa-check mr-1"></i>检查句子</button>
+                    <button onclick="showSentenceBuildHint()" class="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-xs transition-all"><i class="fa-solid fa-lightbulb mr-1"></i>给我提示</button>
+                    <button onclick="resetSentenceBuildRound(${build.currentQ}, ${build.sentenceIndex}); renderSentenceBuild();" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all"><i class="fa-solid fa-rotate-right mr-1"></i>重排</button>
+                </div>
+
+                <div class="rounded-xl border px-3 py-2 text-xs font-bold ${statusClass}">${build.hintText || statusText}</div>
+
+                ${isCorrect ? `
+                    <div class="bg-white rounded-xl border border-emerald-200 p-3 space-y-3">
+                        <p class="text-sm font-bold text-emerald-900">完整句子：${sentence.text}</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="speakText('${sentence.text}')" class="px-3 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs"><i class="fa-solid fa-volume-high mr-1"></i>跟读一次</button>
+                            ${build.typingUnlocked && !build.typingPassed ? `<button onclick="openSentenceTypingChallenge()" class="px-3 py-2 rounded-xl bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold text-xs"><i class="fa-solid fa-keyboard mr-1"></i>拼音打字挑战</button>` : ''}
+                            <button onclick="nextSentenceBuild()" class="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">${build.sentenceIndex < question.sentences.length - 1 ? '下一句' : '完成本题'} <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                        </div>
+                        ${build.typingMode ? renderSentenceTypingChallenge(sentence) : ''}
+                    </div>
+                ` : ''}
+            `;
+            applyPinyinState();
+        }
+
+        function startSentenceBuildDrag(event, tileIndex) {
+            event.dataTransfer.setData('text/plain', String(tileIndex));
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function allowSentenceBuildDrop(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        function dropSentenceBuildTile(event, slotIndex) {
+            event.preventDefault();
+            const rawTileIndex = event.dataTransfer.getData('text/plain');
+            if (rawTileIndex === '') return;
+            const tileIndex = Number(rawTileIndex);
+            if (Number.isInteger(tileIndex)) placeSentenceBuildTile(tileIndex, slotIndex);
+        }
+
+        function placeSentenceBuildTile(tileIndex, targetIndex = null) {
+            const build = state.sentenceBuild;
+            const firstEmpty = build.slots.findIndex(value => value === null);
+            const slotIndex = targetIndex === null ? firstEmpty : targetIndex;
+            if (slotIndex === -1) {
+                build.hintText = '句子格已经满了。点击已放入的词语，就可以取回重排。';
+                renderSentenceBuild();
+                return;
+            }
+            if (build.supportMode && slotIndex === 0) return;
+
+            const oldIndex = build.slots.indexOf(tileIndex);
+            if (oldIndex !== -1) build.slots[oldIndex] = null;
+            build.slots[slotIndex] = tileIndex;
+            build.status = 'idle';
+            build.hintText = '';
+            renderSentenceBuild();
+        }
+
+        function removeSentenceBuildTile(slotIndex) {
+            const build = state.sentenceBuild;
+            if (build.supportMode && slotIndex === 0 && build.slots[0] === 0) return;
+            if (build.slots[slotIndex] !== null) {
+                build.slots[slotIndex] = null;
+                build.status = 'idle';
+                build.hintText = '';
+                renderSentenceBuild();
+            }
+        }
+
+        function showSentenceBuildHint() {
+            const build = state.sentenceBuild;
+            const sentence = getSentenceBuildSentence();
+            const firstWrong = build.slots.findIndex((tileIndex, index) => tileIndex !== index);
+            if (firstWrong === -1) {
+                build.hintText = '每一块词语的位置都对了，可以点击【检查句子】。';
+            } else {
+                build.hintText = `提示：第 ${firstWrong + 1} 格应该放「${sentence.tiles[firstWrong]}」。`;
+            }
+            renderSentenceBuild();
+        }
+
+        function checkSentenceBuild() {
+            const build = state.sentenceBuild;
+            const sentence = getSentenceBuildSentence();
+            const studentSentence = build.slots.map(tileIndex => tileIndex === null ? '＿＿' : sentence.tiles[tileIndex]).join(' ');
+            const isCorrect = build.slots.length === sentence.tiles.length && build.slots.every((tileIndex, index) => tileIndex === index);
+
+            if (isCorrect) {
+                const isFirstCompletion = !build.completed[build.currentQ].includes(build.sentenceIndex);
+                if (isFirstCompletion) {
+                    build.completed[build.currentQ].push(build.sentenceIndex);
+                    addScore(10);
+                    logResponseToSupabase('关卡二：词语拼句', `${sentenceBuildData[build.currentQ].shortTitle}-${sentence.label}`, sentence.text, true);
+                }
+                build.status = 'correct';
+                build.hintText = '';
+                build.typingUnlocked = build.attempts === 0;
+                playSoundEffect('correct');
+                speakText(sentence.text);
+            } else {
+                build.attempts++;
+                build.status = 'incorrect';
+                logResponseToSupabase('关卡二：词语拼句', `${sentenceBuildData[build.currentQ].shortTitle}-${sentence.label}`, studentSentence, false);
+                if (build.attempts >= 2) {
+                    build.supportMode = true;
+                    const existingFirstTile = build.slots.indexOf(0);
+                    if (existingFirstTile > 0) build.slots[existingFirstTile] = null;
+                    build.slots[0] = 0;
+                    build.hintText = `我们先把第一块「${sentence.tiles[0]}」放好，再继续想一想。`;
+                } else {
+                    build.hintText = '顺序还不对。先想一想：谁先做这个动作？';
+                }
+                playSoundEffect('wrong');
+            }
+            renderSentenceBuild();
+        }
+
+        function nextSentenceBuild() {
+            const build = state.sentenceBuild;
+            const question = sentenceBuildData[build.currentQ];
+            if (build.sentenceIndex < question.sentences.length - 1) {
+                resetSentenceBuildRound(build.currentQ, build.sentenceIndex + 1);
+                renderSentenceBuild();
+            } else {
+                state.completedTasks[2] = true;
+                playSoundEffect('fanfare');
+                showModal('词语拼句通关！', `你已经拼好题目${build.currentQ}的三句核心句。下一关，我们会把句子连成完整的一段。`);
+                resetSentenceBuildRound(build.currentQ, 0);
+                renderSentenceBuild();
+            }
+        }
+
+        function openSentenceTypingChallenge() {
+            state.sentenceBuild.typingMode = true;
+            renderSentenceBuild();
+            setTimeout(() => document.getElementById('sentenceTypingInput')?.focus(), 0);
+        }
+
+        function renderSentenceTypingChallenge(sentence) {
+            const keywords = sentence.tiles.filter(tile => tile.length > 1).slice(0, 3).join('、');
+            return `
+                <div class="pt-3 border-t border-indigo-100 space-y-2">
+                    <p class="text-xs font-bold text-indigo-900"><i class="fa-solid fa-keyboard mr-1"></i>拼音打字挑战</p>
+                    <p class="text-xs text-slate-600">关键词：${keywords}。请用拼音输入法打出完整句子。</p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="sentenceTypingInput" type="text" autocomplete="off" class="flex-1 px-3 py-2 rounded-xl border border-indigo-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="在这里输入完整句子">
+                        <button onclick="checkSentenceTyping()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs">检查打字</button>
+                    </div>
+                    <p id="sentenceTypingFeedback" class="text-xs font-bold text-indigo-700"></p>
+                </div>
+            `;
+        }
+
+        function checkSentenceTyping() {
+            const input = document.getElementById('sentenceTypingInput');
+            const feedback = document.getElementById('sentenceTypingFeedback');
+            if (!input || !feedback) return;
+            const sentence = getSentenceBuildSentence();
+            const normalize = text => text.replace(/[，。！？、；：,.!?;:\\s]/g, '');
+            if (normalize(input.value) === normalize(sentence.text)) {
+                if (!state.sentenceBuild.typingPassed) {
+                    state.sentenceBuild.typingPassed = true;
+                    addScore(5);
+                    playSoundEffect('correct');
+                }
+                feedback.className = 'text-xs font-bold text-emerald-700';
+                feedback.innerText = '✅ 打对了！你不但会拼句，也能用拼音输入法打出整句。';
+            } else {
+                playSoundEffect('wrong');
+                feedback.className = 'text-xs font-bold text-amber-700';
+                feedback.innerText = '还差一点。看看词语积木，再试一次。';
+            }
+        }
+
+        function renderStage1() {
+            const container = document.getElementById('q1-cards');
+            if (!container) return;
+            container.innerHTML = '';
+
+            q1Data.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-xl border border-sky-100 shadow-sm space-y-3';
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 text-sky-900 font-bold border-b border-sky-50 pb-2">
+                        <div class="w-8 h-8 rounded-lg bg-${item.color}-100 text-${item.color}-600 flex items-center justify-center">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-sky-500 block">浪费水现象 ${index + 1}</span>
+                            <span class="py-text" data-py="${item.pyProblem}">${item.person}：${item.problem}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs md:text-sm text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-lg">
+                        <p>📍 <strong>具体例子：</strong> <span class="py-text" data-py="${item.pyExample}">${item.example}</span></p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-sky-800">💡 请选择正确的改进做法（怎么办？）：</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            ${item.options.map((opt, optIdx) => `
+                                <button onclick="checkQ1Answer(${index}, ${optIdx})" id="q1-btn-${index}-${optIdx}" class="text-left px-3 py-2 text-xs md:text-sm rounded-lg border border-slate-200 hover:border-sky-400 hover:bg-sky-50 transition-all font-medium">
+                                    ${String.fromCharCode(65 + optIdx)}. ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            applyPinyinState();
+        }
+
+        function checkQ1Answer(cardIdx, selectedOptIdx) {
+            const item = q1Data[cardIdx];
+            const btn = document.getElementById(`q1-btn-${cardIdx}-${selectedOptIdx}`);
+            
+            if (selectedOptIdx === item.correctAnswer) {
+                btn.className = "text-left px-3 py-2 text-xs md:text-sm rounded-lg border border-emerald-500 bg-emerald-50 text-emerald-800 font-bold";
+                addScore(10);
+                showModal("回答正确！", `太棒了！对待“${item.person}”浪费水的现象，正确做法就是：${item.solution}`);
+                speakText("回答正确！" + item.solution);
+            } else {
+                btn.className = "text-left px-3 py-2 text-xs md:text-sm rounded-lg border border-rose-300 bg-rose-50 text-rose-700";
+                showModal("再想想看", "这个做法不够恰当哦，再试一次吧！", false);
+            }
+        }
+
+        function renderStage2() {
+            const container = document.getElementById('q2-game');
+            if (!container) return;
+            container.innerHTML = '';
+
+            q2Data.forEach((group, gIdx) => {
+                // Shuffle items for ordering game
+                const shuffled = [...group.items].sort(() => Math.random() - 0.5);
+
+                const block = document.createElement('div');
+                block.className = 'bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-3';
+                block.innerHTML = `
+                    <h3 class="font-bold text-emerald-800 text-sm md:text-base border-b border-emerald-100 pb-2">
+                        <i class="fa-solid fa-check-double text-emerald-500 mr-1"></i> ${group.title}
+                    </h3>
+                    <p class="text-xs text-slate-500">点击以下拆散的句子，按照【观点 ➔ 例子 ➔ 效果】顺序排列：</p>
+
+                    <div id="q2-pool-${gIdx}" class="space-y-2">
+                        ${shuffled.map((it, iIdx) => `
+                            <div onclick="selectQ2Item(${gIdx}, ${iIdx})" id="q2-item-${gIdx}-${iIdx}" data-type="${it.type}" class="q2-card p-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 cursor-pointer text-xs md:text-sm transition-all flex items-center justify-between">
+                                <span class="py-text" data-py="${it.py}">${it.text}</span>
+                                <i class="fa-regular fa-circle-check text-slate-300 status-icon"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="verifyQ2Order(${gIdx})" class="mt-2 w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-all">
+                        验证本组逻辑
+                    </button>
+                `;
+                container.appendChild(block);
+            });
+            applyPinyinState();
+        }
+
+        let q2Selections = {};
+
+        function selectQ2Item(gIdx, iIdx) {
+            const el = document.getElementById(`q2-item-${gIdx}-${iIdx}`);
+            if (!q2Selections[gIdx]) q2Selections[gIdx] = [];
+
+            if (el.classList.contains('bg-emerald-100')) {
+                // Deselect
+                el.classList.remove('bg-emerald-100', 'border-emerald-400');
+                el.classList.add('bg-slate-50');
+                q2Selections[gIdx] = q2Selections[gIdx].filter(item => item !== el);
+            } else {
+                // Select
+                el.classList.remove('bg-slate-50');
+                el.classList.add('bg-emerald-100', 'border-emerald-400');
+                q2Selections[gIdx].push(el);
+            }
+        }
+
+        function verifyQ2Order(gIdx) {
+            const group = q2Data[gIdx];
+            const selectedEls = q2Selections[gIdx] || [];
+
+            if (selectedEls.length !== 3) {
+                showModal("提示", "请先点击选中本组的所有3个句子再进行验证！", false);
+                return;
+            }
+
+            const currentOrderTypes = selectedEls.map(el => el.getAttribute('data-type'));
+            const isCorrect = currentOrderTypes[0] === 'point' && currentOrderTypes[1] === 'example' && currentOrderTypes[2] === 'effect';
+
+            if (isCorrect) {
+                addScore(15);
+                showModal("排列完美！", `你成功掌握了《${group.title}》的作答逻辑！(核心观点 ➔ 举例说明 ➔ 总结效果)`);
+                speakText(`太棒了！${group.title}逻辑排列完全正确！`);
+            } else {
+                showModal("顺序需要调整", "答题顺序应该是：1.核心观点(第一/第二...) ➔ 2.具体例子(比如...) ➔ 3.效果(这样...)", false);
+            }
+        }
+
+        function renderStage3() { loadParagraphBuildQuestion(1); }
+
+        function getParagraphBuildParagraph() {
+            const build = state.paragraphBuild;
+            return paragraphBuildData[build.currentQ].paragraphs[build.paragraphIndex];
+        }
+
+        function resetParagraphBuildRound(qNum, paragraphIndex) {
+            const build = state.paragraphBuild;
+            build.currentQ = qNum;
+            build.paragraphIndex = paragraphIndex;
+            build.contentSlots = [null, null, null];
+            build.contentOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
+            build.contentCorrect = false;
+            build.connectorSelections = [null, null];
+            build.attempts = 0;
+            build.supportMode = false;
+            build.hintText = '';
+            build.status = 'idle';
+        }
+
+        function loadParagraphBuildQuestion(qNum) {
+            const completed = state.paragraphBuild.completed[qNum] || [];
+            const firstIncomplete = paragraphBuildData[qNum].paragraphs.findIndex((_, index) => !completed.includes(index));
+            resetParagraphBuildRound(qNum, firstIncomplete === -1 ? 0 : firstIncomplete);
+            renderParagraphBuild();
+        }
+
+        function renderParagraphBuild() {
+            const container = document.getElementById('paragraphBuildContainer');
+            if (!container) return;
+            const build = state.paragraphBuild;
+            const question = paragraphBuildData[build.currentQ];
+            const paragraph = getParagraphBuildParagraph();
+            const available = build.contentOrder.filter(index => !build.contentSlots.includes(index));
+            const roles = [
+                { label: 'P｜我的重点', prompt: '你想说什么？', box: 'border-sky-300 bg-sky-50', text: 'text-sky-800' },
+                { label: 'ELA｜进一步说明', prompt: '为什么？有什么影响？', box: 'border-amber-300 bg-amber-50', text: 'text-amber-800' },
+                { label: 'EVI｜具体例子', prompt: '生活中有什么例子？', box: 'border-emerald-300 bg-emerald-50', text: 'text-emerald-800' }
+            ];
+
+            [1, 2, 3].forEach(n => {
+                const btn = document.getElementById(`paragraph-qbtn-${n}`);
+                if (!btn) return;
+                btn.className = n === build.currentQ
+                    ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm whitespace-nowrap'
+                    : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 whitespace-nowrap';
+            });
+
+            const slots = roles.map((role, slotIndex) => {
+                const cardIndex = build.contentSlots[slotIndex];
+                const locked = build.supportMode && slotIndex === 0 && cardIndex === 0;
+                const prompt = build.paragraphIndex === 0 ? `<span class="font-normal text-slate-500 ml-1">${role.prompt}</span>` : '';
+                return `<div class="space-y-1">
+                    <p class="text-xs font-bold ${role.text}">${role.label}${prompt}</p>
+                    <button onclick="removeParagraphContent(${slotIndex})" ondragover="allowParagraphDrop(event)" ondrop="dropParagraphContent(event, ${slotIndex})" class="w-full min-h-[64px] text-left p-3 rounded-xl border-2 border-dashed ${cardIndex === null ? `${role.box} text-slate-400` : 'border-indigo-300 bg-white text-slate-800 shadow-sm'} text-xs md:text-sm font-medium">
+                        ${cardIndex === null ? '把合适的内容卡放在这里' : `${locked ? '<i class="fa-solid fa-lock text-indigo-400 mr-1"></i>' : ''}${paragraph.cards[cardIndex]}`}
+                    </button>
+                </div>`;
+            }).join('');
+
+            const connectorStep = build.contentCorrect && paragraph.connectors.length ? `
+                <div class="p-3 rounded-xl bg-violet-50 border border-violet-200 space-y-3">
+                    <div><p class="text-xs font-bold text-violet-900">第二步：选择连接词</p><p class="text-xs text-violet-700 mt-0.5">内容已经排好，现在把句子连接起来。</p></div>
+                    ${paragraph.connectors.map((item, index) => `<div class="space-y-1.5">
+                        <p class="text-xs font-bold text-slate-700">${index === 0 ? 'P 和 ELA 之间' : 'ELA 和 EVI 之间'}</p>
+                        <div class="flex flex-wrap gap-2">${item.options.map(option => `<button onclick="choosePeelConnector(${index}, '${option}')" class="px-3 py-1.5 rounded-full border text-xs font-bold ${build.connectorSelections[index] === option ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-violet-200 text-violet-800 hover:bg-violet-100'}">${option}</button>`).join('')}</div>
+                    </div>`).join('')}
+                    <button onclick="checkPeelConnectors()" class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold"><i class="fa-solid fa-link mr-1"></i>检查连接词</button>
+                </div>` : '';
+
+            const preview = build.status === 'correct' ? `<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                <p class="text-xs font-bold text-emerald-800"><i class="fa-solid fa-star mr-1"></i>完整口试要点</p>
+                <p class="p-2 rounded-lg bg-sky-50 border-l-4 border-sky-400 text-xs md:text-sm"><b class="text-sky-800">P：</b>${paragraph.cards[0]}</p>
+                <p class="p-2 rounded-lg bg-amber-50 border-l-4 border-amber-400 text-xs md:text-sm"><b class="text-amber-800">ELA：</b>${paragraph.connectors[0]?.correct || ''}${paragraph.cards[1]}</p>
+                <p class="p-2 rounded-lg bg-emerald-50 border-l-4 border-emerald-400 text-xs md:text-sm"><b class="text-emerald-800">EVI：</b>${paragraph.connectors[1]?.correct || ''}${paragraph.cards[2]}</p>
+                <p class="text-xs font-bold text-indigo-700 text-center pt-1">P＋ELA＋EVI＝一个完整的口试要点</p>
+            </div>` : '';
+
+            container.innerHTML = `
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <div><p class="text-sm font-bold text-indigo-950">${question.title}</p><p class="text-xs text-indigo-700 mt-1">第 ${build.paragraphIndex + 1} 段／共 3 段 · 已完成 ${build.completed[build.currentQ].length} 段</p></div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white border border-indigo-200 text-indigo-700">${paragraph.title}</span>
+                </div>
+                ${question.intro ? `<div class="p-3 rounded-xl bg-white border border-indigo-100"><p class="text-xs font-bold text-indigo-700 mb-1">固定开头（不用拖动）</p><p class="text-xs md:text-sm text-slate-700">${question.intro}</p></div>` : ''}
+                <div class="p-3 rounded-xl bg-white/80 border border-indigo-100 space-y-3"><p class="text-xs font-bold text-slate-600">第一步：把三张内容卡放进正确的位置</p>${slots}</div>
+                ${!build.contentCorrect ? `<div class="p-3 rounded-xl bg-indigo-50 border border-indigo-100"><p class="text-xs font-bold text-indigo-800 mb-2"><i class="fa-solid fa-grip mr-1"></i>内容卡（可以拖动，也可以点击）</p><div class="space-y-2">${available.length ? available.map(index => `<button draggable="true" ondragstart="startParagraphContentDrag(event, ${index})" onclick="placeParagraphContent(${index})" class="w-full text-left p-2.5 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-xs text-slate-700 font-medium shadow-sm">${paragraph.cards[index]}</button>`).join('') : '<p class="text-xs text-slate-400">三张卡都已放入。</p>'}</div></div>` : ''}
+                ${!build.contentCorrect ? `<div class="flex flex-wrap gap-2"><button onclick="checkPeelContent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"><i class="fa-solid fa-check mr-1"></i>检查内容</button><button onclick="showParagraphHint()" class="px-4 py-2 rounded-xl bg-white border border-indigo-200 text-indigo-800 text-xs font-bold"><i class="fa-solid fa-lightbulb mr-1"></i>给我提示</button><button onclick="resetParagraphBuildRound(state.paragraphBuild.currentQ, state.paragraphBuild.paragraphIndex); renderParagraphBuild();" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold"><i class="fa-solid fa-rotate-right mr-1"></i>重排</button></div>` : ''}
+                ${connectorStep}
+                ${build.hintText ? `<p class="text-xs font-medium ${build.status === 'correct' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-indigo-800 bg-indigo-50 border-indigo-200'} p-3 rounded-xl border">${build.hintText}</p>` : ''}
+                ${preview}
+                ${build.status === 'correct' ? `<button onclick="nextParagraphBuild()" class="w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold">${build.paragraphIndex < 2 ? '下一点' : '完成这道题'} <i class="fa-solid fa-arrow-right ml-1"></i></button>` : ''}`;
+            applyPinyinState();
+        }
+
+        function allowParagraphDrop(event) { event.preventDefault(); }
+        function startParagraphContentDrag(event, cardIndex) { event.dataTransfer.setData('peel-card', String(cardIndex)); }
+        function dropParagraphContent(event, slotIndex) { event.preventDefault(); const value = event.dataTransfer.getData('peel-card'); if (value !== '') placeParagraphContent(Number(value), slotIndex); }
+
+        function placeParagraphContent(cardIndex, targetIndex = null) {
+            const build = state.paragraphBuild;
+            if (build.contentCorrect) return;
+            const slotIndex = targetIndex === null ? build.contentSlots.findIndex(value => value === null) : targetIndex;
+            if (slotIndex < 0 || (build.supportMode && slotIndex === 0)) return;
+            const oldIndex = build.contentSlots.indexOf(cardIndex);
+            if (oldIndex !== -1) build.contentSlots[oldIndex] = null;
+            const replaced = build.contentSlots[slotIndex];
+            build.contentSlots[slotIndex] = cardIndex;
+            if (replaced !== null && oldIndex !== -1) build.contentSlots[oldIndex] = replaced;
+            build.hintText = '';
+            renderParagraphBuild();
+        }
+
+        function removeParagraphContent(slotIndex) {
+            const build = state.paragraphBuild;
+            if (build.contentCorrect || (build.supportMode && slotIndex === 0)) return;
+            build.contentSlots[slotIndex] = null;
+            build.hintText = '';
+            renderParagraphBuild();
+        }
+
+        function showParagraphHint() {
+            const build = state.paragraphBuild;
+            const paragraph = getParagraphBuildParagraph();
+            const wrong = build.contentSlots.findIndex((value, index) => value !== index);
+            const roleHints = ['P要先说出主要重点。', 'ELA要进一步说明原因、影响或好处。', 'EVI要说出具体的人、动作或生活例子。'];
+            build.hintText = wrong === -1 ? '三个位置都排好了，可以检查内容。' : `${roleHints[wrong]} 关键词：${paragraph.keywords[wrong]}`;
+            renderParagraphBuild();
+        }
+
+        function checkPeelContent() {
+            const build = state.paragraphBuild;
+            const paragraph = getParagraphBuildParagraph();
+            const correct = build.contentSlots.every((value, index) => value === index);
+            if (!correct) {
+                build.attempts++;
+                build.status = 'incorrect';
+                if (build.attempts >= 2) {
+                    build.supportMode = true;
+                    build.contentSlots = build.contentSlots.map((value, index) => index === 0 ? 0 : (value === 0 ? null : value));
+                    build.hintText = `我先帮你放好P。ELA关键词：${paragraph.keywords[1]}`;
+                } else build.hintText = '再想一想：先说重点，再进一步说明，最后举出具体例子。';
+                playSoundEffect('wrong');
+                renderParagraphBuild();
+                return;
+            }
+            build.contentCorrect = true;
+            build.hintText = paragraph.connectors.length ? '三张内容卡排对了！现在完成第二步，选择连接词。' : '';
+            if (!paragraph.connectors.length) completePeelParagraph();
+            else renderParagraphBuild();
+        }
+
+        function choosePeelConnector(index, value) {
+            state.paragraphBuild.connectorSelections[index] = value;
+            state.paragraphBuild.hintText = '';
+            renderParagraphBuild();
+        }
+
+        function checkPeelConnectors() {
+            const build = state.paragraphBuild;
+            const paragraph = getParagraphBuildParagraph();
+            if (build.connectorSelections.some(value => value === null)) {
+                build.hintText = '请先为两个位置选择连接词。';
+                renderParagraphBuild();
+                return;
+            }
+            const correct = paragraph.connectors.every((item, index) => build.connectorSelections[index] === item.correct);
+            if (correct) completePeelParagraph();
+            else {
+                build.hintText = '再想一想：“因为”说明原因；“比如”带出具体例子。';
+                playSoundEffect('wrong');
+                renderParagraphBuild();
+            }
+        }
+
+        function composePeelParagraph() {
+            const paragraph = getParagraphBuildParagraph();
+            return `${paragraph.cards[0]}${paragraph.connectors[0]?.correct || ''}${paragraph.cards[1]}${paragraph.connectors[1]?.correct || ''}${paragraph.cards[2]}`;
+        }
+
+        function completePeelParagraph() {
+            const build = state.paragraphBuild;
+            const paragraph = getParagraphBuildParagraph();
+            if (!build.completed[build.currentQ].includes(build.paragraphIndex)) {
+                build.completed[build.currentQ].push(build.paragraphIndex);
+                addScore(15);
+                logResponseToSupabase('关卡三：P＋ELA＋EVI', `${paragraphBuildData[build.currentQ].shortTitle}-${paragraph.title}`, composePeelParagraph(), true);
+            }
+            build.status = 'correct';
+            build.hintText = '太棒了！你已经完成一个完整的口试要点！';
+            playSoundEffect('correct');
+            launchPeelCelebration();
+            renderParagraphBuild();
+        }
+
+        function launchPeelCelebration() {
+            document.getElementById('peelCelebrationLayer')?.remove();
+            const layer = document.createElement('div');
+            layer.id = 'peelCelebrationLayer';
+            const colors = ['#38bdf8', '#fbbf24', '#34d399', '#a78bfa', '#fb7185'];
+            for (let i = 0; i < 34; i++) {
+                const piece = document.createElement('span');
+                piece.className = 'peel-confetti';
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.background = colors[i % colors.length];
+                piece.style.animationDelay = `${Math.random() * 0.28}s`;
+                piece.style.setProperty('--drift', `${Math.round(Math.random() * 180 - 90)}px`);
+                layer.appendChild(piece);
+            }
+            document.body.appendChild(layer);
+            setTimeout(() => layer.remove(), 2100);
+        }
+
+        function nextParagraphBuild() {
+            const build = state.paragraphBuild;
+            const question = paragraphBuildData[build.currentQ];
+            if (build.paragraphIndex < 2) {
+                resetParagraphBuildRound(build.currentQ, build.paragraphIndex + 1);
+                renderParagraphBuild();
+            } else {
+                const allDone = [1, 2, 3].every(q => state.paragraphBuild.completed[q].length === 3);
+                if (allDone) state.completedTasks[3] = true;
+                playSoundEffect('fanfare');
+                showModal('这道题完成了！', `${question.outro || '你已经完成三个P＋ELA＋EVI口试要点。'} 你可以选择另一道题继续练习。`);
+            }
+        }
+
+        function loadMockQuestion(qNum) {
+            state.currentMockIndex = qNum;
+            // Stop ongoing recording if any
+            if (state.isRecording) {
+                toggleRecording();
+            }
+
+            // Update active btn styling
+            [1, 2, 3].forEach(n => {
+                const btn = document.getElementById(`mock-btn-${n}`);
+                if (n === qNum) {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300";
+                }
+            });
+
+            const titleEl = document.getElementById('mock-q-title');
+            const scriptEl = document.getElementById('mock-script-container');
+
+            if (qNum === 1) {
+                titleEl.innerHTML = `<span><i class="fa-solid fa-comment-dots text-sky-500 mr-2"></i>题目一：是否有见过浪费水的人？请说一说。</span>`;
+                scriptEl.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="p-2.5 rounded-lg bg-sky-50 border-l-4 border-sky-400">
+                            <span class="font-bold text-sky-900 block text-xs">【开门见山】</span>
+                            <span class="py-text" data-py="wǒ kàn guò xǐng xiàng zhōng làng fèi shuǐ de rén. zài wǒ de shēng huó zhōng, yě yǒu leèi sì de qíng kuàng.">我有看过像录像中浪费水的人。在我的生活中，也有类似的情况。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-sky-800 block text-xs">【一点：弟弟刷牙】</span>
+                            <span class="py-text" data-py="dì yī, wǒ dì di shuā yá de shí hou yì zhí kāi zhe shuǐ lóng tóu. zhè yàng huì làng fèi hěn duō shuǐ. bǐ rú dì di shuā yá liǎng sān fēn zhōng, shuǐ yì zhí liú. wǒ men yìng gāi shuā yá shí xiān guān shuǐ lóng tóu.">第一，我弟弟刷牙的时候一直开着水龙头。这样会浪费很多水。比如弟弟刷牙两三分钟，水一直流。我们应该刷牙时先关水龙头。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-sky-800 block text-xs">【二点：姐姐洗澡】</span>
+                            <span class="py-text" data-py="dì èr, wǒ jiě jie xǐ zǎo de shí hou yòng hěn duō shuǐ, shí jiān tài cháng. bǐ rú jiě jie xǐ zǎo xǐ èr shí duō fēn zhōng. wǒ men yìng gāi suō duǎn xǐ zǎo shí jiān.">第二，我姐姐洗澡的时候用很多水，洗澡时间太长。比如姐姐洗澡洗二十多分钟。我们应该缩短洗澡时间。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-sky-800 block text-xs">【三点：厕所水龙头没关紧】</span>
+                            <span class="py-text" data-py="dì sān, xué xiào cè suǒ de shuǐ lóng tóu jīng cháng méi yǒu guān hǎo, shuǐ yì zhí liú. wǒ men kàn dào yìng gāi bǎ shuǐ guān hǎo, bù yào làng fèi.">第三，学校厕所的水龙头经常没有关好，水一直流。我们看到这种情况应该把水关好，不要浪费水。</span>
+                        </div>
+                    </div>
+                `;
+            } else if (qNum === 2) {
+                titleEl.innerHTML = `<span><i class="fa-solid fa-lightbulb text-emerald-500 mr-2"></i>题目二：还有哪些节省用水的方法？</span>`;
+                scriptEl.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="p-2.5 rounded-lg bg-emerald-50 border-l-4 border-emerald-400">
+                            <span class="font-bold text-emerald-900 block text-xs">【方法一：不用水关水龙头】</span>
+                            <span class="py-text" data-py="dì yī, wǒ men bù yòng shuǐ de shí hou yào guān shuǐ lóng tóu. bǐ rú shuā yá huò xǐ shǒu cā féi zào shí xiān guān shuǐ, yào shù kǒu shí cái dǎ kāi. měi tiān kě yǐ shěng bù shǎo shuǐ.">第一，我们不用水的时候要关水龙头。比如刷牙或洗手擦肥皂时先关水，要漱口时才打开。每天可以省不少水。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-emerald-800 block text-xs">【方法二：缩短洗澡时间】</span>
+                            <span class="py-text" data-py="dì èr, wǒ men kě yǐ suō duǎn xǐ zǎo de shí jiān. jǐn liàng zài shí fēn zhōng zuǒ yòu xǐ wán, xǐ tóu hé cā féi zào shí xiān bǎ shuǐ guān diào.">第二，我们可以缩短洗澡的时间。尽量在十分钟左右洗完，洗头和擦肥皂时先把水关掉。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-emerald-800 block text-xs">【方法三：重复使用水】</span>
+                            <span class="py-text" data-py="dì sān, wǒ men kě yǐ chóng fù shǐ yòng yì xiē shuǐ. bǐ rú mā ma xǐ mǐ hòu, bǎ xǐ mǐ shuǐ liú xià lái jiāo huā huò xǐ dì. zhè yàng yì pén shuǐ yòng liǎng cì, bǎo hù zī yuán.">第三，我们可以重复使用一些水。比如妈妈洗米后，把洗米水留下来浇花或洗地。这样一盆水用两次，保护资源。</span>
+                        </div>
+                    </div>
+                `;
+            } else if (qNum === 3) {
+                titleEl.innerHTML = `<span><i class="fa-solid fa-heart-pulse text-indigo-500 mr-2"></i>题目三：从小培养省水习惯，你同意吗？为什么？</span>`;
+                scriptEl.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="p-2.5 rounded-lg bg-indigo-50 border-l-4 border-indigo-400">
+                            <span class="font-bold text-indigo-900 block text-xs">【表态与理由一：习惯持久】</span>
+                            <span class="py-text" data-py="wǒ tóng yì. dì yī, yīn wèi xiǎo shí hou yǎng chéng de xí guàn bǐ jiào róng yì bǎo chí xià qù. xiǎo cóng zhī dào bù làng fèi, zhǎng dà yě huì jì xù zhè yàng zuò.">我同意。第一，因为小时候养成的习惯比较容易保持下去。从小知道不浪费，长大也会继续这样做。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-indigo-800 block text-xs">【理由二：互相提醒与影响】</span>
+                            <span class="py-text" data-py="dì èr, yīn wèi hái zi cóng xiǎo yǎng chéng xí guàn, kě yǐ yǐng xiǎng jiā rén hé péng yǒu. hái zi kě yǐ hé jiā rén, tóng xué hù xiāng tí xǐng, jǐn liàng bǎ shuǐ guān xiǎo.">第二，因为孩子从小养成习惯，可以影响家人和朋友。孩子可以和家人、同学互相提醒，尽量把水关小。</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+                            <span class="font-bold text-indigo-800 block text-xs">【理由三：建立环保责任感】</span>
+                            <span class="py-text" data-py="dì sān, yīn wèi cóng xiǎo xué xí jié shěng yòng shuǐ, kě yǐ ràng hái zi míng bai měi gè rén dōu yǒu bǎo hù huán jìng de zé rèn.">第三，因为从小学习节省用水，可以让孩子明白每个人都有保护环境的责任。</span>
+                        </div>
+                    </div>
+                `;
+            }
+            applyPinyinState();
+
+            // Re-apply mask class if enabled
+            if (state.isMasked) {
+                scriptEl.classList.add('script-masked');
+            } else {
+                scriptEl.classList.remove('script-masked');
+            }
+        }
+
+        function toggleScriptMask() {
+            state.isMasked = !state.isMasked;
+            const btn = document.getElementById('maskToggleBtn');
+            const scriptContainer = document.getElementById('mock-script-container');
+
+            if (state.isMasked) {
+                scriptContainer.classList.add('script-masked');
+                btn.innerHTML = `<i class="fa-solid fa-eye mr-1"></i> 显示示范答案`;
+                btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm transition-all";
+            } else {
+                scriptContainer.classList.remove('script-masked');
+                btn.innerHTML = `<i class="fa-solid fa-eye-slash mr-1"></i> 开启遮挡挑战`;
+                btn.className = "px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all";
+            }
+        }
+
+        const vocabList = [
+            { id: 'v1', word: '浪费', pinyin: 'làng fèi', en: 'waste', icon: 'fa-faucet-drip' },
+            { id: 'v2', word: '节省', pinyin: 'jié shěng', en: 'save / conserve', icon: 'fa-hand-holding-droplet' },
+            { id: 'v3', word: '水龙头', pinyin: 'shuǐ lóng tóu', en: 'tap / faucet', icon: 'fa-faucet' },
+            { id: 'v4', word: '关紧', pinyin: 'guān jǐn', en: 'turn off tightly', icon: 'fa-circle-xmark' },
+            { id: 'v5', word: '习惯', pinyin: 'xí guàn', en: 'habit', icon: 'fa-rotate' },
+            { id: 'v6', word: '培养', pinyin: 'péi yǎng', en: 'cultivate / nurture', icon: 'fa-seedling' },
+            { id: 'v7', word: '责任感', pinyin: 'zé rèn gǎn', en: 'sense of responsibility', icon: 'fa-shield-heart' },
+            { id: 'v8', word: '珍惜', pinyin: 'zhēn xī', en: 'cherish / treasure', icon: 'fa-heart' }
+        ];
+
+        const sentenceBuildData = {
+            1: {
+                title: '题目一：你有看过像录像中浪费水的人吗？',
+                shortTitle: '题目一',
+                sentences: [
+                    { label: '核心句 1', text: '我弟弟刷牙时常常没有关水龙头。', tiles: ['我', '弟弟', '刷牙时', '常常', '没有', '关水龙头'], pinyinTiles: ['wǒ','dì di','shuā yá shí','cháng cháng','méi yǒu','guān shuǐ lóng tóu'] },
+                    { label: '核心句 2', text: '我姐姐洗澡的时间太长。', tiles: ['我姐姐', '洗澡的时间', '太长'], pinyinTiles: ['wǒ jiě jie','xǐ zǎo de shí jiān','tài cháng'] },
+                    { label: '核心句 3', text: '看到后，我们应该马上把水关紧。', tiles: ['看到后', '我们', '应该', '马上', '把水', '关紧'], pinyinTiles: ['kàn dào hòu','wǒ men','yīng gāi','mǎ shàng','bǎ shuǐ','guān jǐn'] }
+                ]
+            },
+            2: {
+                title: '题目二：还有哪些可以节省用水的方法？',
+                shortTitle: '题目二',
+                sentences: [
+                    { label: '核心句 1', text: '用水后要马上关紧水龙头。', tiles: ['用水后', '要', '马上', '关紧', '水龙头'], pinyinTiles: ['yòng shuǐ hòu','yào','mǎ shàng','guān jǐn','shuǐ lóng tóu'] },
+                    { label: '核心句 2', text: '洗澡前，先准备好衣服和毛巾。', tiles: ['洗澡前', '先', '准备好', '衣服', '和', '毛巾'], pinyinTiles: ['xǐ zǎo qián','xiān','zhǔn bèi hǎo','yī fu','hé','máo jīn'] },
+                    { label: '核心句 3', text: '洗米水可以用来浇花。', tiles: ['洗米水', '可以', '用来', '浇花'], pinyinTiles: ['xǐ mǐ shuǐ','kě yǐ','yòng lái','jiāo huā'] }
+                ]
+            },
+            3: {
+                title: '题目三：节省用水的习惯应该从小培养，你同意吗？',
+                shortTitle: '题目三',
+                sentences: [
+                    { label: '核心句 1', text: '小时候学的习惯比较容易记住。', tiles: ['小时候', '学的', '习惯', '比较', '容易', '记住'], pinyinTiles: ['xiǎo shí hou','xué de','xí guàn','bǐ jiào','róng yì','jì zhù'] },
+                    { label: '核心句 2', text: '水很重要，也不是用不完的。', tiles: ['水', '很重要', '也', '不是', '用不完的'], pinyinTiles: ['shuǐ','hěn zhòng yào','yě','bú shì','yòng bù wán de'] },
+                    { label: '核心句 3', text: '孩子也可以提醒家人一起省水。', tiles: ['孩子', '也可以', '提醒', '家人', '一起', '省水'], pinyinTiles: ['hái zi','yě kě yǐ','tí xǐng','jiā rén','yì qǐ','shěng shuǐ'] }
+                ]
+            }
+        };
+
+        const paragraphBuildData = {
+            1: {
+                title: '题目一：你有看过像录像中浪费水的人吗？请你说一说。',
+                shortTitle: '题目一',
+                intro: '我有见过浪费水的人。我觉得水很重要，我们不应该随便浪费。',
+                outro: '',
+                paragraphs: [
+                    {
+                        title: '第一点：弟弟刷牙',
+                        cards: ['我弟弟刷牙时常常没有关水龙头。', '水一直流，会浪费很多水。', '有一次，我看到弟弟刷牙时没有关水龙头。我马上提醒他先关水，漱口时才打开。'],
+                        keywords: ['弟弟、刷牙', '浪费水', '提醒、关水'], connectors: []
+                    },
+                    {
+                        title: '第二点：姐姐洗澡',
+                        cards: ['我姐姐洗澡的时间太长。', '洗得太久会用很多水。', '她有时洗了半个小时。我会提醒她洗澡快一点，刷身体时也可以先关水。'],
+                        keywords: ['姐姐、洗澡', '用很多水', '半个小时、关水'], connectors: []
+                    },
+                    {
+                        title: '第三点：学校厕所',
+                        cards: ['我在学校厕所看过水龙头没有关紧。', '水一滴一滴地流到地上，很可惜。', '有一次，我去学校厕所，看到前面的同学洗完手后没有关水龙头，水就哗哗地一直流。我看到后，马上把水龙头关紧。'],
+                        keywords: ['学校厕所', '水流到地上', '同学、没有关、马上关紧'], connectors: []
+                    }
+                ]
+            },
+            2: {
+                title: '题目二：还有哪些可以节省用水的方法？',
+                shortTitle: '题目二',
+                intro: '我觉得我们可以从生活中的小事开始省水。只要每天都注意一点，就可以省下很多水。',
+                outro: '所以，我觉得省水并不难。只要我们愿意每天去做，就能保护水资源。',
+                paragraphs: [
+                    {
+                        title: '第一点：关紧水龙头',
+                        cards: ['用水后要马上关紧水龙头。', '虽然只是一个小动作，却不会让水白白流走。', '刷牙时，可以先把牙刷弄湿，再把水关掉，等漱口时才打开。'],
+                        keywords: ['关紧水龙头', '水不会白白流走', '刷牙、漱口'],
+                        connectors: [{ correct: '这样做', options: ['这样做', '但是', '最后'] }, { correct: '比如，', options: ['比如，', '可是，', '后来，'] }]
+                    },
+                    {
+                        title: '第二点：洗澡不要太久',
+                        cards: ['洗澡不要太久。', '洗得太久会用很多水。', '洗澡前，可以先准备好衣服和毛巾。洗头和刷身体时，也可以先把水关掉，并尽量在十分钟左右洗完。'],
+                        keywords: ['洗澡不要太久', '用很多水', '准备、关水、十分钟'],
+                        connectors: [{ correct: '因为', options: ['因为', '可是', '后来'] }, { correct: '比如，', options: ['比如，', '不过，', '最后，'] }]
+                    },
+                    {
+                        title: '第三点：一水多用',
+                        cards: ['用过但还干净的水，可以再用一次。', '一盆水可以帮我们做两件事，也可以少用一些水。', '妈妈洗米后，可以把洗米水留下来浇花；洗菜的水也可以用来洗地，不用一用完就倒掉。'],
+                        keywords: ['干净的水、再用一次', '做两件事', '洗米水、浇花、洗地'],
+                        connectors: [{ correct: '这样，', options: ['这样，', '不过，', '后来，'] }, { correct: '比如，', options: ['比如，', '可是，', '最后，'] }]
+                    }
+                ]
+            },
+            3: {
+                title: '题目三：节省用水的习惯应该从小培养，你同意吗？为什么？',
+                shortTitle: '题目三',
+                intro: '我同意。',
+                outro: '所以，我觉得从小培养省水习惯很重要。每个人都做一点，大家就可以一起珍惜水。',
+                paragraphs: [
+                    {
+                        title: '第一点：容易养成习惯',
+                        cards: ['小时候学的习惯比较容易记住。', '孩子做久了，就不用等别人提醒，自己也会记得省水，长大后也会继续这样做。', '孩子每天刷牙时，都先把水关掉；洗手擦肥皂时，也不让水一直流。'],
+                        keywords: ['小时候、习惯', '不用别人提醒', '刷牙、洗手、关水'],
+                        connectors: [{ correct: '这是因为', options: ['这是因为', '可是', '最后'] }, { correct: '比如，', options: ['比如，', '不过，', '后来，'] }]
+                    },
+                    {
+                        title: '第二点：明白水很重要',
+                        cards: ['从小学习省水，可以让孩子明白水很重要，也不是用不完的。', '我们洗手、刷牙、洗澡、煮饭，都需要用到水。', '如果每个人都随便浪费水，以后就可能没有足够的干净水可以用。所以，孩子应该从小就学会珍惜水。'],
+                        keywords: ['水很重要', '每天需要用水', '浪费、没有足够的水'],
+                        connectors: [{ correct: '因为', options: ['因为', '可是', '然后'] }, { correct: '例如，', options: ['例如，', '不过，', '最后，'] }]
+                    },
+                    {
+                        title: '第三点：提醒家人',
+                        cards: ['孩子学会省水后，也可以提醒家人一起做。', '家人有时会忘记省水。孩子养成省水的习惯后，看到家人浪费水，就可以提醒他们。', '孩子看到弟弟刷牙没有关水，可以提醒他；看到爸爸洗车时水开得太大，也可以请爸爸关小一点。'],
+                        keywords: ['提醒家人', '家人有时会忘记', '提醒弟弟、提醒爸爸'],
+                        connectors: [{ correct: '这是因为', options: ['这是因为', '不过', '后来'] }, { correct: '比如，', options: ['比如，', '可是，', '最后，'] }]
+                    }
+                ]
+            }
+        };
+
+        const chainQuestionsData = {
+            1: {
+                title: "题目 1 逻辑接龙：浪费水现象",
+                steps: [
+                    {
+                        tag: "步骤 1：第一点 (弟弟刷牙)",
+                        prompt: "在家里，我发现弟弟刷牙时...",
+                        options: [
+                            { text: "因为弟弟刷牙时一直开着水龙头，浪费很多水，比如刷牙两三分钟水一直流，所以应该刷牙时关水龙头。", connector: "因为... 比如... 应该...", correct: true },
+                            { text: "弟弟不关水龙头，水很好玩，所以应该让他多玩一会儿水。", connector: "", correct: false }
+                        ]
+                    },
+                    {
+                        tag: "步骤 2：第二点 (姐姐洗澡)",
+                        prompt: "另外，姐姐洗澡的时候...",
+                        options: [
+                            { text: "因为姐姐洗澡洗了二十多分钟，用很多水，所以我们应该缩短洗澡时间，擦肥皂时把水关掉。", connector: "因为... 所以...", correct: true },
+                            { text: "姐姐喜欢唱歌，洗澡时间越长越好，不用理会水用多少。", connector: "", correct: false }
+                        ]
+                    },
+                    {
+                        tag: "步骤 3：第三点 (公共场所/学校)",
+                        prompt: "在学校厕所里，如果看到水龙头没关好...",
+                        options: [
+                            { text: "我们应该主动把水龙头关好，不要让水一直流，这样才能节省水资源。", connector: "应该... 这样...", correct: true },
+                            { text: "假装没看到，等清洁工人来关就好了。", connector: "", correct: false }
+                        ]
+                    }
+                ]
+            },
+            2: {
+                title: "题目 2 逻辑接龙：省水妙招",
+                steps: [
+                    {
+                        tag: "步骤 1：方法一 (用完关紧)",
+                        prompt: "日常生活中最基本的节水方法是...",
+                        options: [
+                            { text: "不用水的时候要顺手关紧水龙头，比如洗手擦肥皂时先关水，这样每天能省不少水。", connector: "比如... 这样...", correct: true },
+                            { text: "一直开着水龙头洗手，洗得比较干净。", connector: "", correct: false }
+                        ]
+                    },
+                    {
+                        tag: "步骤 2：方法二 (一水多用)",
+                        prompt: "关于重复使用水资源，我们可以...",
+                        options: [
+                            { text: "比如把洗米或洗菜的水留下来，用来浇花或冲厕所，这样可以一水多用。", connector: "比如... 这样...", correct: true },
+                            { text: "洗完米的水直接倒掉，因为留着太麻烦了。", connector: "", correct: false }
+                        ]
+                    }
+                ]
+            },
+            3: {
+                title: "题目 3 逻辑接龙：从小培养习惯",
+                steps: [
+                    {
+                        tag: "步骤 1：表态与原因一",
+                        prompt: "关于节水习惯是否要从小培养...",
+                        options: [
+                            { text: "我同意，因为小时候养成的良好习惯更容易保持下去，长大后也会自觉节约用水。", connector: "我同意... 因为...", correct: true },
+                            { text: "我不同意，因为小孩子什么都不懂，长大后再学节约用水也来得及。", connector: "", correct: false }
+                        ]
+                    },
+                    {
+                        tag: "步骤 2：原因二 (社会与责任)",
+                        prompt: "从小培养节水意识的另一个好处是...",
+                        options: [
+                            { text: "这样不仅能影响身边的家人和朋友互相提醒，还能从小建立起保护环境的责任感。", connector: "不仅... 还能...", correct: true },
+                            { text: "这样可以省很多钱买玩具，不用缴那么多水费。", connector: "", correct: false }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const q1Data = [
+            {
+                person: "弟弟",
+                problem: "刷牙时一直开着水龙头",
+                example: "弟弟刷牙两三分钟，水流不停。",
+                solution: "刷牙擦牙膏时先关掉水龙头，漱口时才打开。",
+                pyProblem: "dì di shuā yá shí yì zhí kāi zhe shuǐ lóng tóu",
+                pyExample: "dì di shuā yá liǎng sān fēn zhōng, shuǐ liú bù tíng.",
+                icon: "fa-child",
+                color: "sky",
+                options: [
+                    "刷牙擦牙膏时先关掉水龙头，漱口时才打开。",
+                    "让水流得更大一点，这样漱口更快。",
+                    "用塑料盆把水装满，刷完牙把水倒掉。"
+                ],
+                correctAnswer: 0
+            },
+            {
+                person: "姐姐",
+                problem: "洗澡时间过长",
+                example: "姐姐洗澡洗了20多分钟，水龙头一直开着。",
+                solution: "缩短洗澡时间，抹沐浴露时先把水龙头关掉。",
+                pyProblem: "jiě jie xǐ zǎo shí jiān guò cháng",
+                pyExample: "jiě jie xǐ zǎo xǐ le èr shí duō fēn zhōng.",
+                icon: "fa-shower",
+                color: "indigo",
+                options: [
+                    "每天洗澡三次，每次洗五分钟。",
+                    "缩短洗澡时间，抹沐浴露时先把水龙头关掉。",
+                    "改用大浴缸泡澡，泡一整小时。"
+                ],
+                correctAnswer: 1
+            }
+        ];
+
+        const q2Data = [
+            {
+                title: "省水妙招一：顺手关紧水龙头",
+                items: [
+                    { type: "point", text: "核心观点：不用水时一定要顺手把水龙头关紧。", py: "hé xīn guān diǎn: bù yòng shuǐ shí yí dìng yào shùn shǒu bǎ shuǐ lóng tóu guān jǐn." },
+                    { type: "example", text: "具体例子：比如洗手擦肥皂或者刷牙时，先把水关上。", py: "jù tǐ lì zi: bǐ rú xǐ shǒu cā féi zào huò zhě shuā yá shí, xiān bǎ shuǐ guān shàng." },
+                    { type: "effect", text: "总结效果：这样每天就能避免无谓的浪费，节省许多水资源。", py: "zǒng jié xiào guǒ: zhè yàng měi tiān jiù néng bì miǎn wú wèi de làng fèi, jié shěng xǔ duō shuǐ zī yuán." }
+                ]
+            }
+        ];
+
+        const q3Data = [
+            {
+                keyword: "从小养成习惯易保持",
+                pyKey: "cóng xiǎo yǎng chéng xí guàn yì bǎo chí",
+                detail: "小时候养成的节约习惯能伴随一生，长大后也会自然而然地珍惜资源。",
+                pyDetail: "xiǎo shí hou yǎng chéng de jié yuē xí guàn néng bàn suí yì shēng, zhǎng dà hòu yě huì zì rán ér rán de zhēn xī zī yuán."
+            },
+            {
+                keyword: "建立社会责任感",
+                pyKey: "jiàn lì shè huì zé rèn gǎn",
+                detail: "明白水资源来之不易，从小树立爱护环境、人人有责的意识。",
+                pyDetail: "míng bai shuǐ zī yuán lái zhī bù yì, cóng xiǎo shù lì ài hù huán jìng, rén rén yǒu zé de yì shí."
+            }
+        ];
+
+        function switchVocabSubMode(mode) {
+            state.vocabSubMode = mode;
+            const listenSec = document.getElementById('vsub-listen-sec');
+            const matchSec = document.getElementById('vsub-match-sec');
+            const btnListen = document.getElementById('vsub-listen');
+            const btnMatch = document.getElementById('vsub-match');
+
+            if (mode === 'listen') {
+                listenSec.classList.remove('hidden');
+                matchSec.classList.add('hidden');
+                btnListen.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-800 shadow-sm transition-all";
+                btnMatch.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-sky-700 hover:bg-white/50 transition-all";
+            } else {
+                listenSec.classList.add('hidden');
+                matchSec.classList.remove('hidden');
+                btnMatch.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-800 shadow-sm transition-all";
+                btnListen.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-sky-700 hover:bg-white/50 transition-all";
+                initMatchGame();
+            }
+        }
+
+        function isEmbeddedPage() {
+            try {
+                return window.self !== window.top;
+            } catch (error) {
+                // 跨网域 frame 无法读取 window.top 时，同样视作嵌入环境。
+                return true;
+            }
+        }
+
+        function getStandalonePracticeUrl() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('recording', '1');
+            return url.toString();
+        }
+
+        function configureRecordingForEmbed() {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordBtnText = document.getElementById('recordBtnText');
+            const openRecordingPageBtn = document.getElementById('openRecordingPageBtn');
+            const recordStatus = document.getElementById('recordStatus');
+
+            if (isEmbeddedPage()) {
+                if (recordBtn) {
+                    recordBtn.disabled = true;
+                    recordBtn.className = "px-3 py-2 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs flex items-center gap-1.5 border border-slate-200 cursor-not-allowed";
+                }
+                if (recordBtnText) recordBtnText.innerText = "请开启录音页";
+                if (openRecordingPageBtn) {
+                    openRecordingPageBtn.href = getStandalonePracticeUrl();
+                    openRecordingPageBtn.classList.remove('hidden');
+                    openRecordingPageBtn.classList.add('flex');
+                }
+                if (recordStatus) {
+                    recordStatus.innerText = "Google Sites 内嵌页无法使用麦克风。请点击【开启录音页】，在新分页完成录音与回听。";
+                    recordStatus.className = "text-center text-xs font-bold py-1 mb-2 text-amber-700 block";
+                }
+            }
+        }
+
+        function getRecordingMimeType() {
+            const candidates = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'audio/ogg;codecs=opus'
+            ];
+            return candidates.find(type => MediaRecorder.isTypeSupported(type)) || '';
+        }
+
+        function getRecordingErrorMessage(err) {
+            if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') {
+                return "浏览器尚未允许此网页使用麦克风。请点击地址栏左侧的锁头图标，把“麦克风”设为允许，然后重新开始录音。";
+            }
+            if (err?.name === 'NotFoundError') {
+                return "未找到可用的麦克风。请检查耳机或电脑麦克风是否已连接和启用。";
+            }
+            if (err?.name === 'NotReadableError') {
+                return "麦克风目前正被另一程序占用。请关闭 Teams、Zoom 或其他录音程序后再试。";
+            }
+            return "暂时无法开始录音。请确认使用的是最新版 Chrome，并检查电脑的麦克风权限。";
+        }
+
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordBtnText = document.getElementById('recordBtnText');
+            const playRecordBtn = document.getElementById('playRecordBtn');
+            const recordStatus = document.getElementById('recordStatus');
+
+            if (!state.isRecording) {
+                try {
+                    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+                        throw new Error('Recording API is not supported');
+                    }
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    state.recordingMimeType = getRecordingMimeType();
+                    state.mediaRecorder = state.recordingMimeType
+                        ? new MediaRecorder(stream, { mimeType: state.recordingMimeType })
+                        : new MediaRecorder(stream);
+                    state.audioChunks = [];
+
+                    state.mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            state.audioChunks.push(e.data);
+                        }
+                    };
+
+                    state.mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(state.audioChunks, { type: state.recordingMimeType || 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        state.userAudioElement = new Audio(audioUrl);
+                        if (playRecordBtn) playRecordBtn.classList.remove('hidden');
+                    };
+
+                    state.mediaRecorder.start();
+                    state.isRecording = true;
+                    state.mockRecordSeconds = 0;
+                    if (typeof renderMockTime === 'function') renderMockTime();
+                    if (state.mockRecordInterval) clearInterval(state.mockRecordInterval);
+                    state.mockRecordInterval = setInterval(() => {
+                        state.mockRecordSeconds++;
+                        if (typeof renderMockTime === 'function') renderMockTime();
+                    }, 1000);
+                    // 逐字稿是附加功能；就算它不被浏览器支持，也不能影响录音。
+                    try {
+                        if (typeof startMockSpeechRecognition === 'function') startMockSpeechRecognition();
+                    } catch (transcriptError) {
+                        console.warn('Transcript is unavailable, but recording continues:', transcriptError);
+                    }
+                    if (recordBtnText) recordBtnText.innerText = "停止录音";
+                    if (recordBtn) recordBtn.className = "px-3 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md animate-pulse";
+                    if (recordStatus) {
+                        recordStatus.innerText = "🎙️ 正在录音中... 请大声朗读作答内容";
+                        recordStatus.className = "text-center text-xs font-bold py-1 mb-2 text-rose-600 block";
+                    }
+                } catch (err) {
+                    console.error("Recording error:", err);
+                    showModal("无法开始录音", getRecordingErrorMessage(err), false);
+                }
+            } else {
+                if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+                    state.mediaRecorder.stop();
+                    state.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+                if (state.mockRecognition) state.mockRecognition.stop();
+                if (state.mockRecordInterval) clearInterval(state.mockRecordInterval);
+                state.mockRecordInterval = null;
+                state.isRecording = false;
+                if (recordBtnText) recordBtnText.innerText = "重新录音自测";
+                if (recordBtn) recordBtn.className = "px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs flex items-center gap-1.5 border border-rose-200 transition-all";
+                if (recordStatus) {
+                    recordStatus.innerText = "✅ 录音已完成！点击【听自己的录音】进行自评。";
+                    recordStatus.className = "text-center text-xs font-bold py-1 mb-2 text-emerald-600 block";
+                }
+            }
+        }
+
+        window.onload = function() {
+            initSupabase();
+            const savedName = localStorage.getItem('STUDENT_NAME');
+            if (savedName) {
+                state.studentName = savedName;
+                document.getElementById('currentStudentNameDisplay').innerText = savedName;
+                document.getElementById('nameModal').classList.add('hidden');
+            } else {
+                openNameModal();
+            }
+
+            renderVocabBootcamp();
+            renderSentenceChain();
+            renderStage3();
+            loadMockQuestion(1);
+
+            if (new URLSearchParams(window.location.search).has('recording')) {
+                setTimeout(() => document.getElementById('recordBtn')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 350);
+            }
+        };
+
+        function checkListenAnswer(selectedId, targetId, btnEl) {
+            const targetWord = vocabList[state.listenCurrentIndex].word;
+            const selectedWord = vocabList.find(v => v.id === selectedId)?.word || '';
+            const isCorrect = (selectedId === targetId);
+
+            logResponseToSupabase("关卡一：听音辨词", `听音辨词 (${targetWord})`, selectedWord, isCorrect);
+
+            if (isCorrect) {
+                playSoundEffect('correct');
+                btnEl.className = "bg-emerald-100 border-2 border-emerald-500 p-3.5 rounded-xl font-bold text-sm text-emerald-900 shadow-md flex flex-col items-center justify-center space-y-1";
+                addScore(10);
+                speakText("答对了！" + vocabList[state.listenCurrentIndex].word);
+                
+                setTimeout(() => {
+                    state.listenCurrentIndex = (state.listenCurrentIndex + 1) % vocabList.length;
+                    loadListenQuestion();
+                }, 1200);
+            } else {
+                playSoundEffect('wrong');
+                btnEl.className = "bg-rose-50 border-2 border-rose-300 p-3.5 rounded-xl font-bold text-sm text-rose-700 flex flex-col items-center justify-center space-y-1";
+                showModal("再试试看", "选错了哦！点击喇叭再听一次读音！", false);
+            }
+        }
+
+        function flipMatchCard(idx) {
+            if (state.flippedCards.length >= 2) return;
+            const cardData = state.matchCards[idx];
+            const cardEl = document.getElementById(`mcard-${idx}`);
+
+            if (cardEl.classList.contains('bg-white')) return; // Already flipped/matched
+
+            // Show card content
+            cardEl.className = "h-20 bg-white text-indigo-900 border-2 border-indigo-400 rounded-xl shadow-md flex flex-col items-center justify-center font-bold text-xs p-2 text-center transition-all";
+            cardEl.innerHTML = `
+                <i class="fa-solid ${cardData.icon} text-indigo-500 mb-1"></i>
+                <span class="py-text" data-py="${cardData.pinyin}">${cardData.content}</span>
+            `;
+            applyPinyinState();
+
+            if (cardData.type === 'word') speakText(cardData.content);
+
+            state.flippedCards.push({ idx, data: cardData });
+
+            if (state.flippedCards.length === 2) {
+                const [c1, c2] = state.flippedCards;
+                if (c1.data.id === c2.data.id && c1.idx !== c2.idx) {
+                    // Match found!
+                    playSoundEffect('correct');
+                    addScore(15);
+                    state.matchedPairs++;
+                    state.flippedCards = [];
+
+                    document.getElementById(`mcard-${c1.idx}`).classList.add('border-emerald-500', 'bg-emerald-50');
+                    document.getElementById(`mcard-${c2.idx}`).classList.add('border-emerald-500', 'bg-emerald-50');
+
+                    if (state.matchedPairs === 6) {
+                        playSoundEffect('fanfare');
+                        setTimeout(() => {
+                            showModal("对对碰全通关！", "太厉害了！你成功记住了所有核心字词义与发音！");
+                        }, 500);
+                    }
+                } else {
+                    // No match
+                    playSoundEffect('wrong');
+                    setTimeout(() => {
+                        const el1 = document.getElementById(`mcard-${c1.idx}`);
+                        const el2 = document.getElementById(`mcard-${c2.idx}`);
+                        if (el1) {
+                            el1.className = "h-20 bg-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-bold text-xs p-2 text-center cursor-pointer transition-all";
+                            el1.innerHTML = `<i class="fa-solid fa-question text-xl text-indigo-300"></i>`;
+                        }
+                        if (el2) {
+                            el2.className = "h-20 bg-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-bold text-xs p-2 text-center cursor-pointer transition-all";
+                            el2.innerHTML = `<i class="fa-solid fa-question text-xl text-indigo-300"></i>`;
+                        }
+                        state.flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function selectChainOption(qNum, stepIdx, optIdx) {
+            const qData = chainQuestionsData[qNum];
+            if (!qData) return;
+            const stepData = qData.steps[stepIdx];
+            if (!stepData) return;
+            const selectedOpt = stepData.options[optIdx];
+            if (!selectedOpt) return;
+            const btnEl = document.getElementById(`chain-opt-${stepIdx}-${optIdx}`);
+
+            if (!state.chainSelections[qNum]) {
+                state.chainSelections[qNum] = {};
+            }
+
+            logResponseToSupabase("关卡二：句子大接龙", `题目${qNum}-步骤${stepIdx + 1}`, selectedOpt.text, selectedOpt.correct);
+
+            if (selectedOpt.correct) {
+                playSoundEffect('correct');
+                if (btnEl) {
+                    btnEl.className = "text-left p-2.5 rounded-lg border-2 border-emerald-500 bg-emerald-100 text-xs text-emerald-900 font-bold transition-all";
+                }
+                state.chainSelections[qNum][stepIdx] = selectedOpt.text;
+                addScore(10);
+                speakText(selectedOpt.text);
+
+                if (Object.keys(state.chainSelections[qNum]).length === qData.steps.length) {
+                    playSoundEffect('fanfare');
+                    const playBtn = document.getElementById('playChainAudioBtn');
+                    if (playBtn) playBtn.classList.remove('hidden');
+                    showModal("大接龙成功！", "你完美连成了整段口试回答！点击【试听整段回答】出声模仿吧！");
+                }
+            } else {
+                playSoundEffect('wrong');
+                if (btnEl) {
+                    btnEl.className = "text-left p-2.5 rounded-lg border-2 border-rose-300 bg-rose-50 text-xs text-rose-700 transition-all";
+                }
+                showModal("逻辑不够顺畅", "这个选项句式不够连贯或意思不合适，再想想看！", false);
+            }
+        }
+
+        function checkQ3Reason(index) {
+            const selectEl = document.getElementById(`q3-select-${index}`);
+            const val = selectEl.value;
+            const selectedText = selectEl.options[selectEl.selectedIndex].text;
+            const isCorrect = (val === 'correct');
+
+            if (val !== '') {
+                logResponseToSupabase("关卡三：从小培养", `理由 ${index + 1}`, selectedText, isCorrect);
+            }
+
+            if (isCorrect) {
+                playSoundEffect('correct');
+                addScore(10);
+                showModal("总结到位！", "完全正确！从小培养节约用水习惯，既能持之以恒，又能影响他人并建立责任感！");
+                speakText("正确！从小培养习惯非常重要。");
+            } else if (val !== '') {
+                playSoundEffect('wrong');
+                showModal("观点不恰当", "这个观点不太符合环保价值观哦，再想想看！", false);
+            }
+        }
+
+        function playUserRecording() {
+            if (state.userAudioElement) {
+                stopAudio();
+                state.userAudioElement.currentTime = 0;
+                state.userAudioElement.play();
+            } else {
+                showModal("提示", "还没有录音文件哦，请先点击【开始录音自测】！", false);
+            }
+        }
+
+        function readCurrentMock() {
+            let fullText = "";
+            if (state.currentMockIndex === 1) {
+                fullText = "我有看过像录像中浪费水的人。第一，我弟弟刷牙的时候一直开着水龙头。刷牙两三分钟，水一直流。我们应该刷牙时关水龙头。第二，我姐姐洗澡洗二十多分钟，用很多水。我们应该缩短洗澡时间。第三，学校厕所的水龙头经常没关好，我们看到应该把水关好。";
+            } else if (state.currentMockIndex === 2) {
+                fullText = "还有哪些可以节省用水的方法？第一，我们不用水的时候要关水龙头。比如刷牙或洗手擦肥皂时先关水。第二，我们可以缩短洗澡的时间，尽量在十分钟左右洗完。第三，我们可以重复使用一些水，比如把洗米水留下来浇花或洗地。";
+            } else if (state.currentMockIndex === 3) {
+                fullText = "节省用水的习惯应该从小培养，我同意。第一，因为小时候养成的习惯比较容易保持下去。第二，因为孩子从小养成习惯，可以影响家人和朋友，互相提醒。第三，因为从小学习节省用水，可以让孩子明白每个人都有保护环境的责任。";
+            }
+            speakText(fullText);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showModal("提示", "您的浏览器不支持语音朗读功能，请参考文字进行朗读！", false);
+            }
+        }
+
+        function stopAudio() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function togglePinyin() {
+            state.pinyinEnabled = !state.pinyinEnabled;
+            const btnText = document.getElementById('pinyinBtnText');
+            btnText.innerText = state.pinyinEnabled ? "隐藏拼音" : "显示拼音";
+            renderVocabBootcamp();
+            renderSentenceBuild();
+            renderParagraphBuild();
+            loadMockQuestion(state.currentMockIndex);
+            applyPinyinState();
+        }
+
+        function applyPinyinState() {
+            restoreAutoPinyin();
+            const elements = document.querySelectorAll('.py-text');
+            elements.forEach(el => {
+                const text = el.getAttribute('data-text') || el.innerText;
+                const py = el.getAttribute('data-py');
+
+                if (!el.getAttribute('data-text')) {
+                    el.setAttribute('data-text', text);
+                }
+
+                if (state.pinyinEnabled && py) {
+                    el.innerHTML = `<span>${text}</span><span class="pinyin-line">${py}</span>`;
+                } else {
+                    el.innerHTML = text;
+                }
+            });
+            if (state.pinyinEnabled) applyAutoPinyinToPage();
+        }
+
+        function restoreAutoPinyin() {
+            document.querySelectorAll('.auto-pinyin').forEach(el => {
+                el.replaceWith(document.createTextNode(el.dataset.text || el.textContent));
+            });
+        }
+
+        function applyAutoPinyinToPage() {
+            if (!window.pinyinPro || typeof window.pinyinPro.pinyin !== 'function') return;
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach(node => {
+                const parent = node.parentElement;
+                const text = node.nodeValue;
+                if (!parent || !/[\u3400-\u9fff]/.test(text) || parent.closest('script, style, .py-text, .pinyin-line, .auto-pinyin')) return;
+                const wrap = document.createElement('span');
+                wrap.className = 'auto-pinyin';
+                wrap.dataset.text = text;
+                const chinese = document.createElement('span');
+                chinese.textContent = text;
+                const pinyin = document.createElement('span');
+                pinyin.className = 'pinyin-line';
+                pinyin.textContent = window.pinyinPro.pinyin(text, { toneType: 'symbol' });
+                wrap.append(chinese, pinyin);
+                node.replaceWith(wrap);
+            });
+        }
+
+        function switchStage(stageNum) {
+            state.currentStage = stageNum;
+            [1, 2, 3, 4].forEach(s => {
+                const stageEl = document.getElementById(`stage-${s}`);
+                const tabBtn = document.getElementById(`tab-${s}`);
+                if (s === stageNum) {
+                    stageEl.classList.remove('hidden');
+                    tabBtn.className = "tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center bg-white text-sky-800 shadow-sm";
+                } else {
+                    stageEl.classList.add('hidden');
+                    tabBtn.className = "tab-btn py-2 md:py-3 px-1 rounded-xl font-bold text-xs md:text-sm transition-all text-center text-sky-700 hover:bg-white/50";
+                }
+            });
+            if (stageNum === 2) {
+                loadSentenceBuildQuestion(state.sentenceBuild.currentQ || 1);
+            }
+            if (stageNum === 3) {
+                loadParagraphBuildQuestion(state.paragraphBuild.currentQ || 1);
+            }
+            stopAudio();
+        }
+
+        function addScore(pts) {
+            state.score += pts;
+            document.getElementById('scoreDisplay').innerText = state.score;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerBtn');
+            const display = document.getElementById('timerDisplay');
+
+            if (state.isTimerRunning) {
+                clearInterval(state.timerInterval);
+                state.isTimerRunning = false;
+                btn.innerText = "开始";
+                btn.className = "px-2.5 py-1 rounded-lg bg-sky-100 text-sky-700 text-xs font-bold hover:bg-sky-200";
+            } else {
+                state.isTimerRunning = true;
+                btn.innerText = "暂停";
+                btn.className = "px-2.5 py-1 rounded-lg bg-amber-100 text-amber-700 text-xs font-bold hover:bg-amber-200";
+                state.timerInterval = setInterval(() => {
+                    state.timerSeconds++;
+                    const mins = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+                    const secs = String(state.timerSeconds % 60).padStart(2, '0');
+                    display.innerText = `${mins}:${secs}`;
+                }, 1000);
+            }
+        }
+
+        function showModal(title, msg, isSuccess = true) {
+            const modal = document.getElementById('feedbackModal');
+            const icon = document.getElementById('modalIcon');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+
+            if (isSuccess) {
+                icon.className = "w-16 h-16 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center mx-auto text-3xl mb-3";
+                icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
+            } else {
+                icon.className = "w-16 h-16 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto text-3xl mb-3";
+                icon.innerHTML = `<i class="fa-solid fa-lightbulb"></i>`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('feedbackModal').classList.add('hidden');
+        }
+
+        /* 关卡四：本地录音、逐字稿和规则式反馈（不调用 AI / API） */
+        const mockPracticeData = {
+            1: {
+                title: '题目一：你有看过像录像中浪费水的人吗？请你说一说。',
+                opening: '我有见过浪费水的人。我觉得水很重要，我们不应该随便浪费。',
+                ending: '所以，我们看到浪费水的情况，应该马上提醒或把水龙头关紧。',
+                answer: '我有见过浪费水的人。我觉得水很重要，我们不应该随便浪费。第一，我看过弟弟刷牙时没有关水龙头。水一直流，很浪费。我提醒他先关水，漱口时才打开。第二，我看过姐姐洗澡用了半个小时。这样会用掉很多水。她可以洗快一点，刷身体时先关水。第三，我在学校厕所看过水龙头没有关紧。水一滴一滴流到地上，很可惜。有一次，我看到前面的同学洗完手后没有关水龙头，水就哗哗地一直流。我马上把水龙头关紧。所以，我们看到浪费水的情况，应该马上提醒或把水龙头关紧。',
+                points: [
+                    { title: '弟弟刷牙', sayP: '我看过弟弟刷牙时没有关水龙头。', sayEla: '水一直流，很浪费。', sayEvi: '我提醒他先关水，漱口时才打开。', p: ['弟弟', '刷牙'], ela: ['一直流', '浪费'], evi: ['提醒', '关水', '漱口'] },
+                    { title: '姐姐洗澡', sayP: '我看过姐姐洗澡用了半个小时。', sayEla: '这样会用掉很多水。', sayEvi: '她可以洗快一点，刷身体时先关水。', p: ['姐姐', '洗澡'], ela: ['半个小时', '很久', '很多水'], evi: ['洗快', '刷身体', '关水'] },
+                    { title: '学校厕所', sayP: '我在学校厕所看过水龙头没有关紧。', sayEla: '水一滴一滴流到地上，很可惜。', sayEvi: '有一次，我看到前面的同学洗完手后没有关水龙头，水就哗哗地一直流。我马上把水龙头关紧。', p: ['学校', '厕所', '水龙头'], ela: ['一滴一滴', '地上', '可惜'], evi: ['同学', '洗手', '马上', '关紧'] }
+                ]
+            },
+            2: {
+                title: '题目二：还有哪些可以节省用水的方法？',
+                opening: '我觉得我们可以从生活中的小事开始省水。只要每天都注意一点，就可以省下很多水。',
+                ending: '所以，省水并不难。只要我们每天去做，就能保护水资源。',
+                answer: '我觉得我们可以从生活中的小事开始省水。只要每天都注意一点，就可以省下很多水。第一，刷牙时要关紧水龙头。不要让水一直流。先把牙刷弄湿，再关水，漱口时才打开。第二，洗澡不要太久。这样会用很多水。先准备好衣服和毛巾，刷身体时先关水，大约十分钟就洗好。第三，用过但还干净的水可以再用。这样可以少用水。妈妈洗米后可以把洗米水留下来浇花，洗菜的水也可以用来洗地。所以，省水并不难。只要我们每天去做，就能保护水资源。',
+                points: [
+                    { title: '关紧水龙头', sayP: '刷牙时要关紧水龙头。', sayEla: '不要让水一直流。', sayEvi: '先把牙刷弄湿，再关水，漱口时才打开。', p: ['关紧', '关水', '水龙头'], ela: ['一直流', '浪费', '白白'], evi: ['刷牙', '漱口', '牙刷'] },
+                    { title: '洗澡不要太久', sayP: '洗澡不要太久。', sayEla: '这样会用很多水。', sayEvi: '先准备好衣服和毛巾，刷身体时先关水，大约十分钟就洗好。', p: ['洗澡', '快一点', '不要太久'], ela: ['很多水', '浪费'], evi: ['十分钟', '毛巾', '刷身体', '关水'] },
+                    { title: '干净的水再用', sayP: '用过但还干净的水可以再用。', sayEla: '这样可以少用水。', sayEvi: '妈妈洗米后可以把洗米水留下来浇花，洗菜的水也可以用来洗地。', p: ['再用', '一水多用', '干净的水'], ela: ['少用水', '两件事'], evi: ['洗米水', '洗菜水', '浇花', '洗地'] }
+                ]
+            },
+            3: {
+                title: '题目三：节省用水的习惯应该从小培养，你同意吗？为什么？',
+                opening: '我同意。',
+                ending: '所以，从小培养省水习惯很重要。每个人都做一点，大家就可以一起珍惜水。',
+                answer: '我同意。第一，小时候学会省水，就比较容易记住，也容易养成好习惯。例如，孩子学会刷牙和洗手时关水，长大后也会继续这样做。第二，水很重要，也不是永远用不完。我们每天洗手、刷牙、洗澡和煮饭都要用水。如果一直浪费，以后可能没有足够的干净水。第三，孩子养成省水习惯后，也可以提醒家人一起做。因为家人有时会忘记，孩子看到弟弟刷牙没关水，或爸爸洗车开太大的水，就可以提醒他们。所以，从小培养省水习惯很重要。每个人都做一点，大家就可以一起珍惜水。',
+                points: [
+                    { title: '小时候容易养成习惯', sayP: '小时候学会省水，就比较容易记住，也容易养成好习惯。', sayEla: '从小知道怎么做，长大后也会继续这样做。', sayEvi: '例如，孩子学会刷牙和洗手时关水。', p: ['小时候', '从小', '好习惯'], ela: ['容易记', '长大', '继续'], evi: ['刷牙', '洗手', '关水'] },
+                    { title: '水很重要', sayP: '水很重要，也不是永远用不完。', sayEla: '我们每天都需要用水；如果一直浪费，以后可能没有足够的干净水。', sayEvi: '我们每天洗手、刷牙、洗澡和煮饭都要用水。', p: ['水很重要', '用不完', '珍惜'], ela: ['每天', '需要', '干净水'], evi: ['洗手', '刷牙', '洗澡', '煮饭'] },
+                    { title: '提醒家人', sayP: '孩子养成省水习惯后，也可以提醒家人一起做。', sayEla: '因为家人有时会忘记，孩子可以提醒他们。', sayEvi: '孩子看到弟弟刷牙没关水，或爸爸洗车开太大的水，就可以提醒他们。', p: ['提醒家人', '一起做'], ela: ['家人', '忘记'], evi: ['弟弟', '爸爸', '洗车', '关小'] }
+                ]
+            }
+        };
+        state.mockRecordSeconds = 0;
+        state.mockRecordInterval = null;
+        state.mockRecognition = null;
+        state.mockFinalTranscript = '';
+        state.mockLastSavedTranscript = '';
+
+        function formatMockTime(seconds) {
+            return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+        }
+        function renderMockTime() {
+            const el = document.getElementById('mockRecordTime');
+            if (el) el.innerText = formatMockTime(state.mockRecordSeconds || 0);
+        }
+        function stopMockTimer() {
+            if (state.mockRecordInterval) clearInterval(state.mockRecordInterval);
+            state.mockRecordInterval = null;
+        }
+        function setRecordStatus(message, colour) {
+            const el = document.getElementById('recordStatus');
+            if (!el) return;
+            el.innerText = message;
+            el.className = `text-center text-xs font-bold py-1 mb-2 block ${colour}`;
+        }
+        function resetMockFeedback() {
+            const el = document.getElementById('mockFeedback');
+            if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
+        }
+        function clearMockTranscript() {
+            const input = document.getElementById('mockTranscript');
+            if (input) input.value = '';
+            resetMockFeedback();
+            setRecordStatus('准备好了。再录一次，试着把刚才遗漏的内容说出来。', 'text-sky-700');
+        }
+        function containsMockWord(text, list) {
+            return list.some(word => text.includes(word));
+        }
+        function mockPill(label, on) {
+            return `<span class="mock-check-pill ${on ? 'on' : 'off'} inline-block border rounded-full px-2 py-0.5 text-[11px] font-bold mr-1 mt-2">${on ? '✓' : '○'} ${label}</span>`;
+        }
+        function checkMockTranscript() {
+            const input = document.getElementById('mockTranscript');
+            const rawTranscript = (input?.value || '').trim();
+            const transcript = rawTranscript.replace(/[，。！？、\s]/g, '');
+            if (!transcript) { showModal('先写下你的答案', '请先录音，或把你刚才说的话写进“我的逐字稿”，再按检查。', false); return; }
+            const data = mockPracticeData[state.currentMockIndex];
+            const results = data.points.map(point => ({
+                title: point.title,
+                p: containsMockWord(transcript, point.p),
+                ela: containsMockWord(transcript, point.ela),
+                evi: containsMockWord(transcript, point.evi)
+            }));
+            const contentCount = results.filter(item => item.p).length;
+            const cards = results.map((item, index) => {
+                const level = [item.p, item.ela, item.evi].filter(Boolean).length;
+                const kind = level >= 2 ? 'good' : level ? 'partial' : 'missing';
+                const icon = level >= 2 ? 'fa-circle-check' : 'fa-circle-dashed';
+                const message = level >= 2 ? '讲得比较完整！' : level ? '你提到了这个内容；再加一点说明或一个例子，会更清楚。' : '这个内容还没讲到，下次可以补上。';
+                return `<div class="mock-feedback-card ${kind} rounded-xl p-3 mb-3"><div class="flex gap-3"><i class="fa-solid ${icon} mt-1"></i><div><p class="font-bold">内容点 ${index + 1}：${item.title}</p><p class="text-xs mt-1">${message}</p><div>${mockPill('P 重点', item.p)}${mockPill('ELA 说明', item.ela)}${mockPill('EVI 例子', item.evi)}</div></div></div></div>`;
+            }).join('');
+            const missing = results.find(item => !item.p);
+            const next = contentCount === 3 ? '三个内容点都有了！下一次试着让每一点都加上说明和例子。' : `下一次试着补上“${missing.title}”，然后再挑战一次。`;
+            const saveKey = `${state.currentMockIndex}|${rawTranscript}`;
+            let saveMessage = '这份逐字稿已经保存到教师端。';
+            if (state.mockLastSavedTranscript !== saveKey) {
+                logResponseToSupabase(
+                    '关卡四：口试逐字稿',
+                    `题目${state.currentMockIndex}：逐字稿`,
+                    rawTranscript,
+                    contentCount === 3
+                );
+                state.mockLastSavedTranscript = saveKey;
+            } else {
+                saveMessage = '这份逐字稿已经保存过了。';
+            }
+            const el = document.getElementById('mockFeedback');
+            el.innerHTML = `<div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4"><div class="flex justify-between items-center gap-2 mb-2"><h4 class="font-bold text-emerald-900"><i class="fa-solid fa-map-location-dot mr-1"></i>我的内容地图</h4><span class="text-xs font-bold bg-white text-emerald-800 border border-emerald-200 px-2 py-1 rounded-full">${contentCount}／3 个内容点</span></div><p class="text-xs font-bold text-emerald-700 mb-3"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>${saveMessage}</p>${cards}<div class="bg-white rounded-xl p-3 text-sm"><p class="font-bold text-slate-800"><i class="fa-solid fa-flag-checkered text-sky-600 mr-1"></i>下一次挑战</p><p class="text-slate-600 text-xs mt-1">${next}</p><p class="text-slate-500 text-xs mt-2">本次录音 ${formatMockTime(state.mockRecordSeconds || 0)}。说得清楚、内容完整，比说得快更重要。</p></div></div>`;
+            el.classList.remove('hidden');
+        }
+        function loadMockQuestion(qNum) {
+            if (state.isRecording) toggleRecording();
+            state.currentMockIndex = qNum;
+            const data = mockPracticeData[qNum];
+            [1, 2, 3].forEach(n => {
+                const btn = document.getElementById(`mock-btn-${n}`);
+                btn.className = n === qNum ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm' : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300';
+            });
+            document.getElementById('mock-q-title').innerHTML = `<i class="fa-solid fa-comment-dots text-sky-500 mr-2"></i>${data.title}`;
+            const pointCards = data.points.map((point, index) => `
+                <div class="p-3 rounded-xl border border-sky-100 bg-white">
+                    <p class="font-bold text-sky-900 text-xs mb-2">【第${['一','二','三'][index]}点：${point.title}】</p>
+                    <div class="mock-answer-copy"><p class="mb-1"><span class="inline-block w-10 text-[11px] font-bold text-indigo-700">P</span>${point.sayP}</p>
+                    <p class="mb-1"><span class="inline-block w-10 text-[11px] font-bold text-emerald-700">ELA</span>${point.sayEla}</p>
+                    <p><span class="inline-block w-10 text-[11px] font-bold text-amber-700">EVI</span>${point.sayEvi}</p></div>
+                </div>`).join('');
+            document.getElementById('mock-script-container').innerHTML = `
+                <div class="p-3 rounded-xl bg-sky-50 border-l-4 border-sky-400"><p class="font-bold text-sky-900 text-xs mb-1">【开头】</p><p class="mock-answer-copy">${data.opening}</p></div>
+                ${pointCards}
+                <div class="p-3 rounded-xl bg-slate-50 border-l-4 border-slate-400"><p class="font-bold text-slate-700 text-xs mb-1">【结尾】</p><p class="mock-answer-copy">${data.ending}</p></div>`;
+            document.getElementById('mockTranscript').value = '';
+            state.mockRecordSeconds = 0; renderMockTime(); resetMockFeedback();
+            state.isMasked = false;
+            document.getElementById('mock-script-container').classList.remove('mock-answer-hidden');
+            document.getElementById('maskToggleBtn').innerHTML = '<i class="fa-solid fa-eye-slash"></i> 隐藏参考答案';
+            applyPinyinState();
+        }
+        function toggleScriptMask() {
+            state.isMasked = !state.isMasked;
+            const box = document.getElementById('mock-script-container');
+            const btn = document.getElementById('maskToggleBtn');
+            box.classList.toggle('mock-answer-hidden', state.isMasked);
+            btn.innerHTML = state.isMasked ? '<i class="fa-solid fa-eye"></i> 显示参考答案' : '<i class="fa-solid fa-eye-slash"></i> 隐藏参考答案';
+        }
+        function readCurrentMock() { speakText(mockPracticeData[state.currentMockIndex].answer); }
+        function startMockSpeechRecognition() {
+            const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Recognition) { setRecordStatus('这个浏览器不能自动转写。录音仍可使用；请在逐字稿方框里自己输入或改字。', 'text-amber-700'); return; }
+            const recognition = new Recognition();
+            recognition.lang = 'zh-CN'; recognition.continuous = true; recognition.interimResults = true;
+            state.mockFinalTranscript = '';
+            recognition.onresult = event => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const part = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) state.mockFinalTranscript += part;
+                    else interim += part;
+                }
+                const box = document.getElementById('mockTranscript');
+                if (box) box.value = state.mockFinalTranscript + interim;
+            };
+            recognition.onerror = event => {
+                if (event.error !== 'aborted' && event.error !== 'no-speech') setRecordStatus('逐字稿暂时无法自动完成。录音已继续；你可以之后自己输入内容。', 'text-amber-700');
+            };
+            try {
+                recognition.start();
+                state.mockRecognition = recognition;
+            } catch (error) {
+                setRecordStatus('录音已开始，但这个浏览器不能自动转成文字。你可以在逐字稿方框里自己输入。', 'text-amber-700');
+            }
+        }
+        async function toggleRecordingEnhancedUnused() {
+            const button = document.getElementById('recordBtn');
+            const label = document.getElementById('recordBtnText');
+            const replay = document.getElementById('playRecordBtn');
+            if (!state.isRecording) {
+                try {
+                    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error('unsupported');
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    state.recordingMimeType = getRecordingMimeType();
+                    state.mediaRecorder = state.recordingMimeType ? new MediaRecorder(stream, { mimeType: state.recordingMimeType }) : new MediaRecorder(stream);
+                    state.audioChunks = [];
+                    state.mediaRecorder.ondataavailable = event => { if (event.data.size) state.audioChunks.push(event.data); };
+                    state.mediaRecorder.onstop = () => {
+                        const blob = new Blob(state.audioChunks, { type: state.recordingMimeType || 'audio/webm' });
+                        state.userAudioElement = new Audio(URL.createObjectURL(blob));
+                        replay.classList.remove('hidden'); stream.getTracks().forEach(track => track.stop());
+                    };
+                    state.mediaRecorder.start(); state.isRecording = true; state.mockRecordSeconds = 0; renderMockTime();
+                    state.mockRecordInterval = setInterval(() => { state.mockRecordSeconds++; renderMockTime(); }, 1000);
+                    startMockSpeechRecognition();
+                    label.innerText = '停止录音';
+                    button.className = 'px-3 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs shadow-md animate-pulse';
+                    setRecordStatus('🎙️ 正在录音。请完整地说出你的答案。', 'text-rose-600');
+                } catch (error) { showModal('无法开始录音', getRecordingErrorMessage(error), false); }
+            } else {
+                if (state.mediaRecorder?.state !== 'inactive') state.mediaRecorder.stop();
+                if (state.mockRecognition) state.mockRecognition.stop();
+                stopMockTimer(); state.isRecording = false; label.innerText = '重新录音测试';
+                button.className = 'px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200';
+                setRecordStatus('✅ 录音完成！先回听，再检查逐字稿里的内容。', 'text-emerald-600');
+            }
+        }
+
+        /* 关卡一独立初始化：避免其他模块出错时，字词卡也跟着空白。 */
+        function renderVocabBootcamp() {
+            try {
+                const target = vocabList[state.listenCurrentIndex] || vocabList[0];
+                if (!target) return;
+                const options = [target];
+                vocabList.forEach(item => {
+                    if (options.length < 4 && item.id !== target.id) options.push(item);
+                });
+                options.sort(() => Math.random() - 0.5);
+
+                const optionGrid = document.getElementById('listenOptionsGrid');
+                if (optionGrid) {
+                    optionGrid.innerHTML = options.map(item => `
+                        <button onclick="checkListenAnswer('${item.id}', '${target.id}', this)" class="bg-white p-3.5 rounded-xl border border-sky-200 hover:bg-sky-50 hover:border-sky-400 font-bold text-sm text-slate-800 shadow-sm transition-all flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-solid ${item.icon} text-sky-500 text-lg mb-1"></i>
+                            <span class="py-text" data-py="${item.pinyin}">${item.word}</span>
+                            <span class="text-[10px] text-slate-400 font-normal">${item.en}</span>
+                        </button>`).join('');
+                }
+
+                const pinyinEl = document.getElementById('listenTargetPinyin');
+                if (pinyinEl) {
+                    pinyinEl.innerText = target.pinyin;
+                    pinyinEl.classList.toggle('hidden', !state.pinyinEnabled);
+                }
+
+                const glossary = document.getElementById('vocabCardGrid');
+                if (glossary) {
+                    glossary.innerHTML = vocabList.map(item => `
+                        <button onclick="speakText('${item.word}')" class="bg-white p-2.5 rounded-xl border border-sky-100 hover:border-sky-300 shadow-sm flex items-center justify-between text-left transition-all">
+                            <span class="flex items-center space-x-2"><span class="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs"><i class="fa-solid ${item.icon}"></i></span><span><span class="font-bold text-xs text-slate-800 block leading-tight py-text" data-py="${item.pinyin}">${item.word}</span><span class="text-[10px] text-slate-400 block">${item.en}</span></span></span>
+                            <i class="fa-solid fa-volume-high text-xs text-sky-400"></i>
+                        </button>`).join('');
+                }
+                try { applyPinyinState(); } catch (pinyinError) { console.warn('Pinyin display skipped:', pinyinError); }
+            } catch (error) {
+                console.error('Stage 1 rendering error:', error);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const grid = document.getElementById('listenOptionsGrid');
+                if (grid && !grid.children.length) renderVocabBootcamp();
+            }, 80);
+        });
+    </script>
+</body>
+</html>
